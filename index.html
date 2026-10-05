@@ -212,7 +212,7 @@
 
         function updateOutputFromInput() {
             const rawText = inputEl.value;
-            outputEl.value = multiSelectMode && selectedFormats.size > 0
+            outputEl.value = selectedFormats.size > 0
                 ? applyFormats(rawText, Array.from(selectedFormats))
                 : rawText;
             updateEmptyState();
@@ -239,27 +239,19 @@
          * No modo de seleção múltipla aplica as funções marcadas, na ordem de seleção.
          */
         function applyFormat(type) {
-            const rawText = inputEl.value;
-
             if (multiSelectMode) {
                 if (selectedFormats.has(type)) {
                     selectedFormats.delete(type);
                 } else {
                     selectedFormats.add(type);
                 }
-
-                updateFormatButtons();
-                updateOutputFromInput();
-                return;
+            } else {
+                selectedFormats.clear();
+                selectedFormats.add(type);
             }
 
-            if (!rawText.trim()) {
-                showToast("Por favor, insira algum texto primeiro.", true);
-                return;
-            }
-
-            outputEl.value = applyFormats(rawText, [type]);
-            updateEmptyState();
+            updateFormatButtons();
+            updateOutputFromInput();
         }
 
         function toggleMultiSelect() {
@@ -273,7 +265,7 @@
 
         function updateFormatButtons() {
             document.querySelectorAll('[data-format]').forEach((button) => {
-                const isSelected = multiSelectMode && selectedFormats.has(button.dataset.format);
+                const isSelected = selectedFormats.has(button.dataset.format);
                 const isDimmed = multiSelectMode && !isSelected;
                 button.classList.toggle('is-selected', isSelected);
                 button.classList.toggle('is-dimmed', isDimmed);
