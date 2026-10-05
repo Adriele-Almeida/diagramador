@@ -256,7 +256,11 @@
 
         function toggleMultiSelect() {
             multiSelectMode = !multiSelectMode;
-            selectedFormats.clear();
+
+            if (!multiSelectMode) {
+                selectedFormats.clear();
+            }
+
             multiSelectButton.setAttribute('aria-pressed', String(multiSelectMode));
             multiSelectButton.classList.toggle('is-active', multiSelectMode);
             updateFormatButtons();
