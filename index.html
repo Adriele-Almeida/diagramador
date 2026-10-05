@@ -84,11 +84,21 @@
             box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
         }
     </style>
+    <meta property="og:title" content="Diagramador Inteligente">
+    <meta property="og:description" content="Diagramação instantânea de textos.
+Por Adriele Almeida • Estrategista Digital.">
+    <meta property="og:image" content="miniatura.png">
+    <link rel="icon" type="image/png" href="icone.png">
+    <link rel="apple-touch-icon" href="icone.png">
 </head>
 <body class="min-h-screen flex flex-col text-slate-800">
 
     <!-- Controles fixos -->
     <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto h-14 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
+            <h1 class="text-base sm:text-lg font-bold leading-tight text-black">Diagramador <span style="color: #4F46E5;">Inteligente</span></h1>
+            <p class="mt-1 text-[11px] sm:text-xs leading-tight text-gray-500">por Adriele Almeida • Estrategista Digital</p>
+        </div>
         <div class="max-w-7xl mx-auto h-20 px-4 sm:px-6 lg:px-8 flex items-center gap-1.5 sm:gap-2">
             <button type="button" data-format="clean_markdown" onclick="applyFormat('clean_markdown')" aria-label="Limpar Markdown" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <span class="format-icon text-lg sm:text-xl font-bold">[ # ]</span>
