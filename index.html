@@ -117,6 +117,18 @@
                     </div>
                 </button>
 
+                <!-- Opção 05: Remover Emojis -->
+                <button onclick="applyFormat('remove_emojis')" class="group relative flex flex-col items-center justify-center w-32 h-20 lg:w-36 lg:h-24 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-slate-700 hover:text-indigo-700">
+                    <span class="text-xl font-bold mb-1">☺</span>
+                    <span class="text-xs font-medium text-center px-2 leading-tight">Remover<br>Emojis</span>
+                </button>
+
+                <!-- Opção 06: Remover Underline -->
+                <button onclick="applyFormat('remove_underscores')" class="group relative flex flex-col items-center justify-center w-32 h-20 lg:w-36 lg:h-24 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-slate-700 hover:text-indigo-700">
+                    <span class="text-xl font-bold mb-1">a_b</span>
+                    <span class="text-xs font-medium text-center px-2 leading-tight">Remover<br>Underline</span>
+                </button>
+
             </section>
 
             <!-- Painel Direito: Resultado -->
@@ -172,12 +184,10 @@
         const toast = document.getElementById('toast');
         const toastMessage = document.getElementById('toastMessage');
 
-        // Monitora digitação para esconder o estado vazio se já houver resultado
+        // Atualiza a prévia imediatamente ao digitar ou colar texto
         inputEl.addEventListener('input', () => {
-            if(inputEl.value.trim() === '') {
-                outputEl.value = '';
-                updateEmptyState();
-            }
+            outputEl.value = inputEl.value;
+            updateEmptyState();
         });
 
         function updateEmptyState() {
@@ -226,6 +236,14 @@
                 case 'clean_markdown':
                     // Opção 04: Limpar marcações de Markdown e Fontes
                     formattedText = cleanMarkdownCitations(rawText);
+                    break;
+                case 'remove_emojis':
+                    // Opção 05: Remover emojis
+                    formattedText = removeEmojis(rawText);
+                    break;
+                case 'remove_underscores':
+                    // Opção 06: Trocar underline por espaço
+                    formattedText = removeUnderscores(rawText);
                     break;
             }
 
@@ -282,14 +300,17 @@
         function cleanMarkdownCitations(text) {
             let result = text;
             
-            // 1. Remove referências de fontes tipo [1], [1, 2], [x], etc.
-            // A regex procura por espaços opcionais seguidos de colchetes contendo números/vírgulas/espaços OU uma única letra.
-            result = result.replace(/\s*\[([\d\s,]+|[a-zA-Z])\]/g, '');
+            // 1. Remove referências de fontes tipo [1], [1, 2], [2-4] e [x].
+            // A regex aceita números, vírgulas, espaços e hífens dentro dos colchetes.
+            result = result.replace(/\s*\[([\d\s,–-]+|[a-zA-Z])\]/g, '');
             
             // 2. Remove os caracteres de markdown especificados (* e #)
             result = result.replace(/[#*]/g, '');
+
+            // 3. Remove linhas usadas como separador horizontal em Markdown
+            result = result.replace(/^[ \t]*---[ \t]*(?:\r?\n|$)/gm, '');
             
-            // 3. Remove os espaços em branco que sobram no início de cada linha após remover os símbolos
+            // 4. Remove os espaços em branco que sobram no início de cada linha após remover os símbolos
             // (ex: "### 1." vira "   1.", e isso arruma para "1.")
             result = result.replace(/^[ \t]+/gm, '');
             
@@ -297,9 +318,23 @@
         }
 
         /*
+         * Remove emojis usando padrões Unicode, sem alterar os demais caracteres.
+         */
+        function removeEmojis(text) {
+            return text.replace(/(?:[0-9#*]\uFE0F?\u20E3|\p{Regional_Indicator}{1,2}|\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier}|\u200D\p{Extended_Pictographic})*)/gu, '');
+        }
+
+        /*
+         * Troca cada underline por um espaço, preservando todo o restante do texto.
+         */
+        function removeUnderscores(text) {
+            return text.replace(/_/g, ' ');
+        }
+
+        /*
          * Lógica de Cópia para Área de Transferência
          */
-        function copyToClipboard() {
+        async function copyToClipboard() {
             const textToCopy = outputEl.value;
             
             if (!textToCopy) {
@@ -307,19 +342,12 @@
                 return;
             }
 
-            // Seleciona o texto visualmente para feedback (opcional)
-            outputEl.select();
-            outputEl.setSelectionRange(0, 99999); // Para dispositivos móveis
-
-            // Utilizando o método seguro de cópia requerido para compatibilidade com iframes
             try {
-                document.execCommand('copy');
+                await navigator.clipboard.writeText(textToCopy);
                 showToast("Texto copiado com sucesso!");
-                // Remove a seleção visual após copiar
-                window.getSelection().removeAllRanges();
             } catch (err) {
                 console.error('Falha ao copiar texto: ', err);
-                showToast("Erro ao copiar. Tente selecionar manualmente.", true);
+                showToast("Erro ao copiar.", true);
             }
         }
 
