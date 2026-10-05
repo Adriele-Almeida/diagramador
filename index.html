@@ -41,6 +41,48 @@
             transform: translateY(0);
             opacity: 1;
         }
+
+        /* Estados visuais dos controles de formatação */
+        .format-control,
+        .multi-select-control {
+            transition: none;
+        }
+        .format-icon {
+            width: 100%;
+            height: 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .format-label {
+            min-height: 0.75rem;
+        }
+        .format-control.is-selected,
+        .format-control.is-selected:hover {
+            border-color: #4f46e5;
+            background-color: #4f46e5;
+            color: #ffffff;
+        }
+        .format-control.is-dimmed,
+        .format-control.is-dimmed:hover {
+            border-color: #e2e8f0;
+            background-color: #f1f5f9;
+            color: #94a3b8;
+        }
+        .multi-select-control {
+            border: 1px solid #e2e8f0;
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            box-shadow: none;
+        }
+        .multi-select-control.is-active,
+        .multi-select-control.is-active:hover {
+            border-color: #4f46e5;
+            background-color: #4f46e5;
+            color: #ffffff;
+            box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col text-slate-800">
@@ -48,31 +90,31 @@
     <!-- Controles fixos -->
     <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
         <div class="max-w-7xl mx-auto h-20 px-4 sm:px-6 lg:px-8 flex items-center gap-1.5 sm:gap-2">
-            <button type="button" data-format="clean_markdown" onclick="applyFormat('clean_markdown')" aria-label="Limpar Markdown" class="format-control group flex-1 min-w-0 h-16 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                <span class="text-xl sm:text-2xl font-bold leading-none line-through text-slate-400 group-hover:text-indigo-400"># [x]</span>
-                <span class="mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar Markdown</span>
+            <button type="button" data-format="clean_markdown" onclick="applyFormat('clean_markdown')" aria-label="Limpar Markdown" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-lg sm:text-xl font-bold">[ # ]</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar Markdown</span>
             </button>
-            <button type="button" data-format="uppercase" onclick="applyFormat('uppercase')" aria-label="Maiúsculo" class="format-control group flex-1 min-w-0 h-16 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                <span class="text-xl sm:text-2xl font-bold leading-none">ABC</span>
-                <span class="mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">MAIÚSCULO</span>
+            <button type="button" data-format="uppercase" onclick="applyFormat('uppercase')" aria-label="Maiúsculo" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-xl sm:text-2xl font-bold">ABC</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">MAIÚSCULO</span>
             </button>
-            <button type="button" data-format="lowercase" onclick="applyFormat('lowercase')" aria-label="Minúsculo" class="format-control group flex-1 min-w-0 h-16 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                <span class="text-xl sm:text-2xl font-bold leading-none">abc</span>
-                <span class="mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">minúsculo</span>
+            <button type="button" data-format="lowercase" onclick="applyFormat('lowercase')" aria-label="Minúsculo" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-xl sm:text-2xl font-bold">abc</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">minúsculo</span>
             </button>
-            <button type="button" data-format="titlecase" onclick="applyFormat('titlecase')" aria-label="Formato Título" class="format-control group flex-1 min-w-0 h-16 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                <span class="text-xl sm:text-2xl font-bold leading-none">Tt</span>
-                <span class="mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Formato Título</span>
+            <button type="button" data-format="titlecase" onclick="applyFormat('titlecase')" aria-label="Formato Título" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-lg sm:text-xl font-bold">Ttx</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Formato Título</span>
             </button>
-            <button type="button" data-format="remove_underscores" onclick="applyFormat('remove_underscores')" aria-label="Remover Underline" class="format-control group flex-1 min-w-0 h-16 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                <span class="text-xl sm:text-2xl font-bold leading-none">a_b</span>
-                <span class="mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Remover Underline</span>
+            <button type="button" data-format="remove_underscores" onclick="applyFormat('remove_underscores')" aria-label="Remover Underline" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-xl sm:text-2xl font-bold">a_b</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Remover Underline</span>
             </button>
-            <button type="button" data-format="remove_emojis" onclick="applyFormat('remove_emojis')" aria-label="Remover Emojis" class="format-control group flex-1 min-w-0 h-16 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                <span class="text-xl sm:text-2xl font-bold leading-none">☺</span>
-                <span class="mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Remover Emojis</span>
+            <button type="button" data-format="remove_emojis" onclick="applyFormat('remove_emojis')" aria-label="Remover Emojis" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-2xl sm:text-3xl font-bold">☺</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Remover Emojis</span>
             </button>
-            <button id="multiSelectButton" type="button" onclick="toggleMultiSelect()" aria-label="Selecionar mais de uma função" aria-pressed="false" class="w-10 sm:w-12 shrink-0 h-16 flex items-center justify-center rounded-lg bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            <button id="multiSelectButton" type="button" onclick="toggleMultiSelect()" aria-label="Selecionar mais de uma função" aria-pressed="false" class="multi-select-control w-10 sm:w-12 shrink-0 h-16 flex items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <span class="text-3xl font-light leading-none">+</span>
             </button>
         </div>
@@ -86,9 +128,21 @@
             <section class="flex-1 flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="bg-slate-50 px-5 py-3 border-b border-slate-200 flex justify-between items-center">
                     <h2 class="font-semibold text-slate-700">Texto Original</h2>
-                    <button onclick="clearInput()" class="text-xs font-medium text-slate-500 hover:text-red-500 transition-colors px-2 py-1 rounded">
-                        Limpar
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="pasteFromClipboard()" class="flex items-center gap-1.5 text-xs font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200 hover:text-indigo-800 transition-colors px-3 py-1.5 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8 3h8"></path>
+                                <path d="M9 3v2h6V3"></path>
+                                <rect x="5" y="5" width="14" height="16" rx="2"></rect>
+                                <path d="M9 11h6"></path>
+                                <path d="M9 15h4"></path>
+                            </svg>
+                            Colar Texto
+                        </button>
+                        <button type="button" onclick="clearInput()" class="text-xs font-medium text-slate-500 hover:text-red-500 transition-colors px-2 py-1 rounded">
+                            Limpar
+                        </button>
+                    </div>
                 </div>
                 <textarea 
                     id="inputText" 
@@ -154,10 +208,15 @@
         const selectedFormats = new Set();
 
         // Atualiza a prévia imediatamente ao digitar ou colar texto
-        inputEl.addEventListener('input', () => {
-            outputEl.value = inputEl.value;
+        inputEl.addEventListener('input', updateOutputFromInput);
+
+        function updateOutputFromInput() {
+            const rawText = inputEl.value;
+            outputEl.value = multiSelectMode && selectedFormats.size > 0
+                ? applyFormats(rawText, Array.from(selectedFormats))
+                : rawText;
             updateEmptyState();
-        });
+        }
 
         function updateEmptyState() {
             if (outputEl.value.length > 0) {
@@ -172,7 +231,6 @@
             inputEl.value = '';
             outputEl.value = '';
             updateEmptyState();
-            inputEl.focus();
         }
 
         /*
@@ -183,11 +241,6 @@
         function applyFormat(type) {
             const rawText = inputEl.value;
 
-            if (!rawText.trim()) {
-                showToast("Por favor, insira algum texto primeiro.", true);
-                return;
-            }
-
             if (multiSelectMode) {
                 if (selectedFormats.has(type)) {
                     selectedFormats.delete(type);
@@ -196,11 +249,16 @@
                 }
 
                 updateFormatButtons();
-                outputEl.value = applyFormats(rawText, Array.from(selectedFormats));
-            } else {
-                outputEl.value = applyFormats(rawText, [type]);
+                updateOutputFromInput();
+                return;
             }
 
+            if (!rawText.trim()) {
+                showToast("Por favor, insira algum texto primeiro.", true);
+                return;
+            }
+
+            outputEl.value = applyFormats(rawText, [type]);
             updateEmptyState();
         }
 
@@ -208,22 +266,17 @@
             multiSelectMode = !multiSelectMode;
             selectedFormats.clear();
             multiSelectButton.setAttribute('aria-pressed', String(multiSelectMode));
-            multiSelectButton.classList.toggle('bg-indigo-800', multiSelectMode);
-            multiSelectButton.classList.toggle('bg-indigo-600', !multiSelectMode);
+            multiSelectButton.classList.toggle('is-active', multiSelectMode);
             updateFormatButtons();
-
-            if (!multiSelectMode) {
-                outputEl.value = inputEl.value;
-                updateEmptyState();
-            }
+            updateOutputFromInput();
         }
 
         function updateFormatButtons() {
             document.querySelectorAll('[data-format]').forEach((button) => {
                 const isSelected = multiSelectMode && selectedFormats.has(button.dataset.format);
-                button.classList.toggle('border-indigo-500', isSelected);
-                button.classList.toggle('bg-indigo-100', isSelected);
-                button.classList.toggle('text-indigo-700', isSelected);
+                const isDimmed = multiSelectMode && !isSelected;
+                button.classList.toggle('is-selected', isSelected);
+                button.classList.toggle('is-dimmed', isDimmed);
                 button.setAttribute('aria-pressed', String(isSelected));
             });
         }
@@ -326,6 +379,20 @@
          */
         function removeUnderscores(text) {
             return text.replace(/_/g, ' ');
+        }
+
+        /*
+         * Lógica de Colagem para Área de Transferência
+         */
+        async function pasteFromClipboard() {
+            try {
+                inputEl.value = await navigator.clipboard.readText();
+                updateOutputFromInput();
+                showToast("Texto colado com sucesso!");
+            } catch (err) {
+                console.error('Falha ao colar texto: ', err);
+                showToast("Erro ao colar.", true);
+            }
         }
 
         /*
