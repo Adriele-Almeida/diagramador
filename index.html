@@ -45,19 +45,36 @@
 </head>
 <body class="min-h-screen flex flex-col text-slate-800">
 
-    <!-- Cabeçalho -->
+    <!-- Controles fixos -->
     <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="bg-indigo-600 text-white p-2 rounded-lg">
-                    <!-- Ícone de Texto SVG -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 7V4h16v3M9 20h6M12 4v16"/>
-                    </svg>
-                </div>
-                <h1 class="text-xl font-bold tracking-tight text-slate-900">TextFormat PRO</h1>
-            </div>
-            <p class="text-sm text-slate-500 hidden sm:block">Diagramação Rápida e Inteligente</p>
+        <div class="max-w-7xl mx-auto h-20 px-4 sm:px-6 lg:px-8 flex items-center gap-1.5 sm:gap-2">
+            <button type="button" data-format="clean_markdown" onclick="applyFormat('clean_markdown')" aria-label="Limpar Markdown" class="format-control group flex-1 min-w-0 h-16 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="text-xl sm:text-2xl font-bold leading-none line-through text-slate-400 group-hover:text-indigo-400"># [x]</span>
+                <span class="mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar Markdown</span>
+            </button>
+            <button type="button" data-format="uppercase" onclick="applyFormat('uppercase')" aria-label="Maiúsculo" class="format-control group flex-1 min-w-0 h-16 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="text-xl sm:text-2xl font-bold leading-none">ABC</span>
+                <span class="mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">MAIÚSCULO</span>
+            </button>
+            <button type="button" data-format="lowercase" onclick="applyFormat('lowercase')" aria-label="Minúsculo" class="format-control group flex-1 min-w-0 h-16 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="text-xl sm:text-2xl font-bold leading-none">abc</span>
+                <span class="mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">minúsculo</span>
+            </button>
+            <button type="button" data-format="titlecase" onclick="applyFormat('titlecase')" aria-label="Formato Título" class="format-control group flex-1 min-w-0 h-16 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="text-xl sm:text-2xl font-bold leading-none">Tt</span>
+                <span class="mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Formato Título</span>
+            </button>
+            <button type="button" data-format="remove_underscores" onclick="applyFormat('remove_underscores')" aria-label="Remover Underline" class="format-control group flex-1 min-w-0 h-16 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="text-xl sm:text-2xl font-bold leading-none">a_b</span>
+                <span class="mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Remover Underline</span>
+            </button>
+            <button type="button" data-format="remove_emojis" onclick="applyFormat('remove_emojis')" aria-label="Remover Emojis" class="format-control group flex-1 min-w-0 h-16 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="text-xl sm:text-2xl font-bold leading-none">☺</span>
+                <span class="mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Remover Emojis</span>
+            </button>
+            <button id="multiSelectButton" type="button" onclick="toggleMultiSelect()" aria-label="Selecionar mais de uma função" aria-pressed="false" class="w-10 sm:w-12 shrink-0 h-16 flex items-center justify-center rounded-lg bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="text-3xl font-light leading-none">+</span>
+            </button>
         </div>
     </header>
 
@@ -78,57 +95,6 @@
                     class="flex-grow w-full p-5 resize-none outline-none focus:ring-0 text-slate-700 bg-transparent"
                     placeholder="Cole ou digite seu texto bruto aqui..."
                     style="min-height: 300px;"></textarea>
-            </section>
-
-            <!-- Painel Central: Controles -->
-            <section class="flex flex-row lg:flex-col justify-center items-center gap-3 lg:gap-4 shrink-0 flex-wrap">
-                
-                <!-- Opção 01: Caixa Alta -->
-                <button onclick="applyFormat('uppercase')" class="group relative flex flex-col items-center justify-center w-32 h-20 lg:w-36 lg:h-24 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-slate-700 hover:text-indigo-700">
-                    <span class="text-xl font-bold mb-1">ABC</span>
-                    <span class="text-xs font-medium text-center px-2">TUDO MAIÚSCULO</span>
-                </button>
-
-                <!-- Opção 02: Título (Exceções) -->
-                <button onclick="applyFormat('titlecase')" class="group relative flex flex-col items-center justify-center w-32 h-20 lg:w-36 lg:h-24 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-slate-700 hover:text-indigo-700">
-                    <span class="text-xl font-bold mb-1">Abc De Fgh</span>
-                    <span class="text-xs font-medium text-center px-2">Formato Título</span>
-                    
-                    <!-- Tooltip explicando a função -->
-                    <div class="absolute lg:left-full lg:ml-2 bottom-full mb-2 lg:mb-0 lg:bottom-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none w-48 bg-slate-800 text-white text-[10px] p-2 rounded shadow-lg z-20">
-                        Primeira letra maiúscula, exceto: de, a, com, e, o, as, etc. (mantém minúsculas).
-                    </div>
-                </button>
-
-                <!-- Opção 03: Tudo Minúsculo -->
-                <button onclick="applyFormat('lowercase')" class="group relative flex flex-col items-center justify-center w-32 h-20 lg:w-36 lg:h-24 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-slate-700 hover:text-indigo-700">
-                    <span class="text-xl font-bold mb-1">abc</span>
-                    <span class="text-xs font-medium text-center px-2">tudo minúsculo</span>
-                </button>
-
-                <!-- Opção 04: Limpar Markdown & Fontes -->
-                <button onclick="applyFormat('clean_markdown')" class="group relative flex flex-col items-center justify-center w-32 h-20 lg:w-36 lg:h-24 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-slate-700 hover:text-indigo-700">
-                    <span class="text-lg font-bold mb-1 line-through text-slate-400 group-hover:text-indigo-400 transition-colors"># * [x]</span>
-                    <span class="text-xs font-medium text-center px-2 leading-tight">Limpar<br>Markdown</span>
-                    
-                    <!-- Tooltip explicando a função -->
-                    <div class="absolute lg:left-full lg:ml-2 bottom-full mb-2 lg:mb-0 lg:bottom-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none w-48 bg-slate-800 text-white text-[10px] p-2 rounded shadow-lg z-20">
-                        Remove marcações como asteriscos (*), hashtags (#) e citações de fontes ex: [1, 2] ou [x].
-                    </div>
-                </button>
-
-                <!-- Opção 05: Remover Emojis -->
-                <button onclick="applyFormat('remove_emojis')" class="group relative flex flex-col items-center justify-center w-32 h-20 lg:w-36 lg:h-24 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-slate-700 hover:text-indigo-700">
-                    <span class="text-xl font-bold mb-1">☺</span>
-                    <span class="text-xs font-medium text-center px-2 leading-tight">Remover<br>Emojis</span>
-                </button>
-
-                <!-- Opção 06: Remover Underline -->
-                <button onclick="applyFormat('remove_underscores')" class="group relative flex flex-col items-center justify-center w-32 h-20 lg:w-36 lg:h-24 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-slate-700 hover:text-indigo-700">
-                    <span class="text-xl font-bold mb-1">a_b</span>
-                    <span class="text-xs font-medium text-center px-2 leading-tight">Remover<br>Underline</span>
-                </button>
-
             </section>
 
             <!-- Painel Direito: Resultado -->
@@ -160,7 +126,7 @@
                         <line x1="14" y1="10" x2="21" y2="3"></line>
                         <line x1="3" y1="21" x2="10" y2="14"></line>
                     </svg>
-                    <p class="text-slate-400 text-sm font-medium text-center max-w-[250px]">Cole o texto à esquerda e escolha um formato no centro.</p>
+                    <p class="text-slate-400 text-sm font-medium text-center max-w-[250px]">Cole o texto acima e escolha uma função no topo.</p>
                 </div>
             </section>
 
@@ -183,6 +149,9 @@
         const emptyState = document.getElementById('emptyState');
         const toast = document.getElementById('toast');
         const toastMessage = document.getElementById('toastMessage');
+        const multiSelectButton = document.getElementById('multiSelectButton');
+        let multiSelectMode = false;
+        const selectedFormats = new Set();
 
         // Atualiza a prévia imediatamente ao digitar ou colar texto
         inputEl.addEventListener('input', () => {
@@ -206,50 +175,78 @@
             inputEl.focus();
         }
 
-        /* 
+        /*
          * Lógica Central: Aplicador de Formato
-         * Encaminha o texto para a função correta baseada no botão clicado.
+         * No modo padrão aplica uma única função.
+         * No modo de seleção múltipla aplica as funções marcadas, na ordem de seleção.
          */
         function applyFormat(type) {
             const rawText = inputEl.value;
-            
+
             if (!rawText.trim()) {
                 showToast("Por favor, insira algum texto primeiro.", true);
                 return;
             }
 
-            let formattedText = "";
+            if (multiSelectMode) {
+                if (selectedFormats.has(type)) {
+                    selectedFormats.delete(type);
+                } else {
+                    selectedFormats.add(type);
+                }
 
-            switch (type) {
-                case 'uppercase':
-                    // Opção 01: Tudo em caixa alta
-                    formattedText = rawText.toUpperCase();
-                    break;
-                case 'lowercase':
-                    // Opção 03: Tudo minúsculo
-                    formattedText = rawText.toLowerCase();
-                    break;
-                case 'titlecase':
-                    // Opção 02: Formato de Título com Exceções
-                    formattedText = formatTitleCase(rawText);
-                    break;
-                case 'clean_markdown':
-                    // Opção 04: Limpar marcações de Markdown e Fontes
-                    formattedText = cleanMarkdownCitations(rawText);
-                    break;
-                case 'remove_emojis':
-                    // Opção 05: Remover emojis
-                    formattedText = removeEmojis(rawText);
-                    break;
-                case 'remove_underscores':
-                    // Opção 06: Trocar underline por espaço
-                    formattedText = removeUnderscores(rawText);
-                    break;
+                updateFormatButtons();
+                outputEl.value = applyFormats(rawText, Array.from(selectedFormats));
+            } else {
+                outputEl.value = applyFormats(rawText, [type]);
             }
 
-            // Define o resultado na área direita
-            outputEl.value = formattedText;
             updateEmptyState();
+        }
+
+        function toggleMultiSelect() {
+            multiSelectMode = !multiSelectMode;
+            selectedFormats.clear();
+            multiSelectButton.setAttribute('aria-pressed', String(multiSelectMode));
+            multiSelectButton.classList.toggle('bg-indigo-800', multiSelectMode);
+            multiSelectButton.classList.toggle('bg-indigo-600', !multiSelectMode);
+            updateFormatButtons();
+
+            if (!multiSelectMode) {
+                outputEl.value = inputEl.value;
+                updateEmptyState();
+            }
+        }
+
+        function updateFormatButtons() {
+            document.querySelectorAll('[data-format]').forEach((button) => {
+                const isSelected = multiSelectMode && selectedFormats.has(button.dataset.format);
+                button.classList.toggle('border-indigo-500', isSelected);
+                button.classList.toggle('bg-indigo-100', isSelected);
+                button.classList.toggle('text-indigo-700', isSelected);
+                button.setAttribute('aria-pressed', String(isSelected));
+            });
+        }
+
+        function applyFormats(text, formats) {
+            return formats.reduce((formattedText, type) => {
+                switch (type) {
+                    case 'uppercase':
+                        return formattedText.toUpperCase();
+                    case 'lowercase':
+                        return formattedText.toLowerCase();
+                    case 'titlecase':
+                        return formatTitleCase(formattedText);
+                    case 'clean_markdown':
+                        return cleanMarkdownCitations(formattedText);
+                    case 'remove_emojis':
+                        return removeEmojis(formattedText);
+                    case 'remove_underscores':
+                        return removeUnderscores(formattedText);
+                    default:
+                        return formattedText;
+                }
+            }, text);
         }
 
         /*
