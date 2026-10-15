@@ -99,7 +99,7 @@ Por Adriele Almeida • Estrategista Digital.">
             <h1 class="text-base sm:text-lg font-bold leading-tight text-white">Diagramador <span style="color: #E12AFF;">Inteligente</span></h1>
             <p class="mt-1 text-[11px] sm:text-xs leading-tight text-white">por Adriele Almeida • Estrategista Digital</p>
         </div>
-        <div class="max-w-7xl mx-auto h-20 px-4 sm:px-6 lg:px-8 flex items-center gap-1.5 sm:gap-2">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 grid grid-cols-4 lg:grid-cols-9 items-center gap-1.5 sm:gap-2">
             <button type="button" data-format="clean_markdown" onclick="applyFormat('clean_markdown')" aria-label="Limpar Markdown" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <span class="format-icon text-lg sm:text-xl font-bold">[ # ]</span>
                 <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar Markdown</span>
@@ -123,6 +123,14 @@ Por Adriele Almeida • Estrategista Digital.">
             <button type="button" data-format="remove_emojis" onclick="applyFormat('remove_emojis')" aria-label="Remover Emojis" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <span class="format-icon text-2xl sm:text-3xl font-bold">☺</span>
                 <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Remover Emojis</span>
+            </button>
+                        <button type="button" data-format="remove_em_dash" onclick="applyFormat('remove_em_dash')" aria-label="Remover travessões" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-xl sm:text-2xl font-bold">—</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Remover —</span>
+            </button>
+            <button type="button" data-format="replace_em_dash" onclick="applyFormat('replace_em_dash')" aria-label="Substituir travessão por hífen" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-sm sm:text-base font-bold">— → -</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Trocar — por -</span>
             </button>
             <button id="multiSelectButton" type="button" onclick="toggleMultiSelect()" aria-label="Selecionar mais de uma função" aria-pressed="false" class="multi-select-control w-10 sm:w-12 shrink-0 h-16 flex items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <span class="text-3xl font-light leading-none">+</span>
@@ -300,6 +308,10 @@ Por Adriele Almeida • Estrategista Digital.">
                         return cleanMarkdownCitations(formattedText);
                     case 'remove_emojis':
                         return removeEmojis(formattedText);
+                    case 'remove_em_dash':
+                        return removeEmDash(formattedText);
+                    case 'replace_em_dash':
+                        return replaceEmDash(formattedText);
                     case 'remove_underscores':
                         return removeUnderscores(formattedText);
                     default:
@@ -374,12 +386,38 @@ Por Adriele Almeida • Estrategista Digital.">
         }
 
         /*
-         * Remove emojis usando padrões Unicode, sem alterar os demais caracteres.
+         * Remove emojis e ajusta apenas os espaços encostados neles:
+         * mantém um espaço entre palavras e não deixa espaços nas bordas
+         * nem antes de pontuação ou de uma quebra de linha.
          */
         function removeEmojis(text) {
-            return text.replace(/(?:[0-9#*]\uFE0F?\u20E3|\p{Regional_Indicator}{1,2}|\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier}|\u200D\p{Extended_Pictographic})*)/gu, '');
+            const emojiPattern = String.raw`(?:[0-9#*]\uFE0F?\u20E3|\p{Regional_Indicator}{1,2}|\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier}|\u200D\p{Extended_Pictographic})*)`;
+            const emojiRunPattern = new RegExp(`[ \\t]*${emojiPattern}(?:[ \\t]*${emojiPattern})*[ \\t]*`, 'gu');
+
+            return text.replace(emojiRunPattern, (match, offset, fullText) => {
+                const before = fullText[offset - 1] || '';
+                const after = fullText[offset + match.length] || '';
+                const hasTextOnBothSides = before && after
+                    && !/[ \t\r\n]/.test(before)
+                    && !/[\s,.;:!?%)\]}»”’]/u.test(after);
+
+                return hasTextOnBothSides ? ' ' : '';
+            });
         }
 
+        /*
+         * Remove exclusivamente o caractere travessão (—).
+         */
+        function removeEmDash(text) {
+            return text.replace(/—/g, '');
+        }
+
+        /*
+         * Substitui exclusivamente o travessão (—) pelo hífen (-).
+         */
+        function replaceEmDash(text) {
+            return text.replace(/—/g, '-');
+        }
         /*
          * Troca cada underline por um espaço, preservando todo o restante do texto.
          */
