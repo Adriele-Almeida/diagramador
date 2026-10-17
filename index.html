@@ -327,7 +327,6 @@ Por Adriele Almeida • Estrategista Digital.">
                 <textarea 
                     id="inputText" 
                     class="flex-grow w-full p-5 resize-none outline-none focus:ring-0 text-slate-700 bg-transparent"
-                    placeholder="Cole ou digite seu texto bruto aqui..."
                     style="min-height: 300px;"></textarea>
             </section>
 
@@ -349,18 +348,8 @@ Por Adriele Almeida • Estrategista Digital.">
                 <textarea 
                     id="outputText" 
                     class="flex-grow w-full p-5 resize-none outline-none focus:ring-0 text-slate-800 bg-transparent"
-                    placeholder="O texto formatado aparecerá aqui..."
                     style="min-height: 300px;"></textarea>
                     
-                <!-- Estado vazio / Instrução overlay -->
-                <div id="emptyState" class="absolute inset-0 top-12 flex flex-col items-center justify-center bg-white pointer-events-none transition-opacity duration-300">
-                    <svg class="text-slate-300 mb-3" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="4 14 10 14 10 20"></polyline>
-                        <polyline points="20 10 14 10 14 4"></polyline>
-                        <line x1="14" y1="10" x2="21" y2="3"></line>
-                        <line x1="3" y1="21" x2="10" y2="14"></line>
-                    </svg>
-                </div>
             </section>
 
         </div>
@@ -379,7 +368,6 @@ Por Adriele Almeida • Estrategista Digital.">
         // Referências aos elementos do DOM
         const inputEl = document.getElementById('inputText');
         const outputEl = document.getElementById('outputText');
-        const emptyState = document.getElementById('emptyState');
         const toast = document.getElementById('toast');
         const toastMessage = document.getElementById('toastMessage');
         const multiSelectButton = document.getElementById('multiSelectButton');
@@ -397,13 +385,7 @@ Por Adriele Almeida • Estrategista Digital.">
             updateEmptyState();
         }
 
-        function updateEmptyState() {
-            if (outputEl.value.length > 0) {
-                emptyState.style.opacity = '0';
-            } else {
-                emptyState.style.opacity = '1';
-            }
-        }
+        function updateEmptyState() {} // sem ícone de bloco vazio
 
         // Função para limpar entrada
         function clearInput() {
