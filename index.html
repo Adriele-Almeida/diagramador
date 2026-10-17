@@ -144,6 +144,18 @@
                 height: 52px;
             }
 
+            /* Botão Voltar: sem estado de foco/ativo preso após o toque. */
+            #backButton {
+                -webkit-tap-highlight-color: transparent;
+            }
+            #backButton:focus:not(:focus-visible) {
+                outline: none;
+                box-shadow: none;
+            }
+            #backButton:active {
+                filter: brightness(0.92);
+            }
+
             #formatToolbar .format-icon svg {
                 width: 24px;
                 height: 24px;
@@ -267,7 +279,7 @@ Por Adriele Almeida • Estrategista Digital.">
                 </span>
                 <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar</span>
             </button>
-            <button id="backButton" type="button" onclick="history.back()" aria-label="Voltar" title="Voltar" style="touch-action: manipulation; background-color: #4F46E5;" class="group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex items-center justify-center rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            <button id="backButton" type="button" onclick="undoLast()" aria-label="Voltar (desfazer a última alteração)" title="Voltar" aria-disabled="true" style="touch-action: manipulation;" class="multi-select-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex items-center justify-center rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"></path><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"></path></svg>
             </button>
         </div>
@@ -387,6 +399,7 @@ Por Adriele Almeida • Estrategista Digital.">
         let lastClearClick = 0;
         function handleClearClick() {
             const now = Date.now();
+            if (now - lastClearClick >= 300) saveState();
             clearInput();
             if (now - lastClearClick < 300) {
                 clearMarkings();
@@ -395,6 +408,41 @@ Por Adriele Almeida • Estrategista Digital.">
                 lastClearClick = now;
             }
         }
+
+        // Voltar: desfaz a última alteração (texto, funções marcadas e "+"). Fica roxo só quando há algo para voltar.
+        const backButton = document.getElementById('backButton');
+        const undoStack = [];
+        let lastTypingSnapshot = 0;
+        function saveState() {
+            undoStack.push({ text: inputEl.value, formats: [...selectedFormats], multi: multiSelectMode });
+            if (undoStack.length > 50) undoStack.shift();
+            updateBackButton();
+        }
+        function updateBackButton() {
+            const canUndo = undoStack.length > 0;
+            backButton.classList.toggle('is-active', canUndo);
+            backButton.setAttribute('aria-disabled', String(!canUndo));
+        }
+        function undoLast() {
+            backButton.blur();
+            const state = undoStack.pop();
+            if (!state) return;
+            inputEl.value = state.text;
+            selectedFormats.clear();
+            state.formats.forEach((f) => selectedFormats.add(f));
+            multiSelectMode = state.multi;
+            multiSelectButton.setAttribute('aria-pressed', String(multiSelectMode));
+            multiSelectButton.classList.toggle('is-active', multiSelectMode);
+            lastTypingSnapshot = 0;
+            updateFormatButtons();
+            updateOutputFromInput();
+            updateBackButton();
+        }
+        inputEl.addEventListener('beforeinput', () => {
+            const now = Date.now();
+            if (now - lastTypingSnapshot > 1000) saveState();
+            lastTypingSnapshot = now;
+        });
 
         function clearMarkings() {
             selectedFormats.clear();
@@ -430,6 +478,7 @@ Por Adriele Almeida • Estrategista Digital.">
          * No modo de seleção múltipla aplica as funções marcadas, na ordem de seleção.
          */
         function applyFormat(type) {
+            saveState();
             if (multiSelectMode) {
                 if (selectedFormats.has(type)) {
                     selectedFormats.delete(type);
@@ -448,6 +497,7 @@ Por Adriele Almeida • Estrategista Digital.">
         }
 
         function toggleMultiSelect() {
+            saveState();
             multiSelectMode = !multiSelectMode;
 
             if (!multiSelectMode) {
@@ -638,7 +688,9 @@ Por Adriele Almeida • Estrategista Digital.">
          */
         async function pasteFromClipboard() {
             try {
-                inputEl.value = await navigator.clipboard.readText();
+                const pasted = await navigator.clipboard.readText();
+                saveState();
+                inputEl.value = pasted;
                 updateOutputFromInput();
                 showToast("Texto colado com sucesso!");
             } catch (err) {
