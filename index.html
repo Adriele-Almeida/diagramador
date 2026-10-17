@@ -217,7 +217,7 @@ Por Adriele Almeida • Estrategista Digital.">
             <h1 class="text-xl sm:text-lg font-bold leading-tight text-white">Diagramador <span style="color: #E12AFF;">Inteligente</span></h1>
             <p class="mt-1 text-sm sm:text-xs leading-tight text-white">por Adriele Almeida • Estrategista Digital</p>
         </div>
-        <div id="formatToolbar" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 grid grid-cols-4 lg:grid-cols-11 items-center gap-1.5 sm:gap-2">
+        <div id="formatToolbar" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 grid grid-cols-4 lg:grid-cols-12 items-center gap-1.5 sm:gap-2">
             <button type="button" data-format="clean_markdown" onclick="applyFormat('clean_markdown')" aria-label="Limpar Markdown" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <span class="format-icon text-lg sm:text-xl font-bold">[ # ]</span>
                 <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar Markdown</span>
@@ -249,6 +249,10 @@ Por Adriele Almeida • Estrategista Digital.">
             <button type="button" data-format="replace_em_dash" onclick="applyFormat('replace_em_dash')" aria-label="Substituir travessão por hífen" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <span class="format-icon flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14"></path><path d="M12 7.5v8"></path><path d="M9 12.5l3 3 3-3"></path><path d="M10 21h4"></path></svg></span>
                 <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Trocar</span>
+            </button>
+            <button type="button" data-format="isolate_urls" onclick="applyFormat('isolate_urls')" aria-label="Isolar URLs" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Isolar URL</span>
             </button>
             <button id="multiSelectButton" type="button" onclick="toggleMultiSelect()" aria-label="Selecionar mais de uma função" aria-pressed="false" class="multi-select-control w-10 sm:w-12 shrink-0 h-16 flex items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <span class="text-3xl font-light leading-none">+</span>
@@ -485,6 +489,8 @@ Por Adriele Almeida • Estrategista Digital.">
                         return replaceEmDash(formattedText);
                     case 'remove_underscores':
                         return removeUnderscores(formattedText);
+                    case 'isolate_urls':
+                        return isolateUrls(formattedText);
                     default:
                         return formattedText;
                 }
@@ -589,6 +595,37 @@ Por Adriele Almeida • Estrategista Digital.">
         function replaceEmDash(text) {
             return text.replace(/—/g, '-');
         }
+        /*
+         * Isolador de URLs: devolve só as URLs digitadas no texto, uma por linha.
+         * A URL vai do http(s):// até o próximo espaço, aspas, crase ou < >.
+         * Pontuação de fim de frase colada no final é deixada de fora.
+         */
+        function isolateUrls(text) {
+            const found = text.match(/https?:\/\/[^\s"'`<>]+/gi) || [];
+            return found.map(trimUrlEnd).filter(Boolean).join('\n');
+        }
+
+        function trimUrlEnd(url) {
+            const pairs = { ')': '(', ']': '[', '}': '{' };
+            let changed = true;
+            while (changed && url.length) {
+                changed = false;
+                const last = url[url.length - 1];
+                if ('.,;:!?*'.includes(last)) {
+                    url = url.slice(0, -1);
+                    changed = true;
+                } else if (pairs[last]) {
+                    const opens = url.split(pairs[last]).length - 1;
+                    const closes = url.split(last).length - 1;
+                    if (closes > opens) {
+                        url = url.slice(0, -1);
+                        changed = true;
+                    }
+                }
+            }
+            return url;
+        }
+
         /*
          * Troca cada underline por um espaço, preservando todo o restante do texto.
          */
