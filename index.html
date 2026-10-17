@@ -82,6 +82,18 @@
             color: #94a3b8;
             box-shadow: none;
         }
+        /* Voltar: sempre apagado (cinza), nunca marcado; borda tracejada e fundo branco para diferenciar do Limpar. */
+        .back-control,
+        .back-control:hover,
+        .back-control:focus,
+        .back-control:active {
+            border: 1px dashed #cbd5e1;
+            background-color: #ffffff;
+            color: #94a3b8;
+            box-shadow: none;
+            filter: none;
+            -webkit-tap-highlight-color: transparent;
+        }
         .multi-select-control.is-active,
         .multi-select-control.is-active:hover {
             border-color: #4f46e5;
@@ -155,9 +167,7 @@
                 outline: none;
                 box-shadow: none;
             }
-            #backButton:active {
-                filter: brightness(0.92);
-            }
+
 
             #formatToolbar .format-icon svg {
                 width: 24px;
@@ -287,7 +297,7 @@ Por Adriele Almeida • Estrategista Digital.">
                 </span>
                 <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar</span>
             </button>
-            <button id="backButton" type="button" onclick="undoLast()" aria-label="Voltar (desfazer a última alteração)" title="Voltar" aria-disabled="true" style="touch-action: manipulation;" class="multi-select-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex items-center justify-center rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+            <button id="backButton" type="button" onclick="undoLast()" aria-label="Voltar (desfazer a última alteração)" title="Voltar" style="touch-action: manipulation;" class="back-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex items-center justify-center rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"></path><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"></path></svg>
             </button>
         </div>
@@ -417,7 +427,7 @@ Por Adriele Almeida • Estrategista Digital.">
             }
         }
 
-        // Voltar: desfaz a última alteração (texto, funções marcadas e "+"). Fica roxo só quando há algo para voltar.
+        // Voltar: desfaz a última alteração (texto, funções marcadas e "+").
         const backButton = document.getElementById('backButton');
         const undoStack = [];
         let lastTypingSnapshot = 0;
@@ -426,11 +436,8 @@ Por Adriele Almeida • Estrategista Digital.">
             if (undoStack.length > 50) undoStack.shift();
             updateBackButton();
         }
-        function updateBackButton() {
-            const canUndo = undoStack.length > 0;
-            backButton.classList.toggle('is-active', canUndo);
-            backButton.setAttribute('aria-disabled', String(!canUndo));
-        }
+        // O Voltar fica sempre cinza (não acende roxo).
+        function updateBackButton() {}
         function undoLast() {
             backButton.blur();
             const state = undoStack.pop();
