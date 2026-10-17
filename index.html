@@ -412,7 +412,7 @@ Por Adriele Almeida • Estrategista Digital.">
 
         /*
          * Lógica Central: Aplicador de Formato
-         * No modo padrão aplica uma única função.
+         * No modo padrão aplica uma única função; tocar de novo no botão marcado desmarca.
          * No modo de seleção múltipla aplica as funções marcadas, na ordem de seleção.
          */
         function applyFormat(type) {
@@ -422,6 +422,8 @@ Por Adriele Almeida • Estrategista Digital.">
                 } else {
                     selectedFormats.add(type);
                 }
+            } else if (selectedFormats.has(type)) {
+                selectedFormats.clear();
             } else {
                 selectedFormats.clear();
                 selectedFormats.add(type);
