@@ -131,7 +131,7 @@
 
             #formatToolbar {
                 position: absolute;
-                top: calc(2rem - 0.2rem); /* alinha o 1º botão ao topo dos painéis (py-8 da área principal) */
+                top: calc(3rem - 0.2rem); /* alinha o 1º botão ao topo dos painéis (3rem de espaço no topo) */
                 left: calc(-5.25rem + 0.35rem);
                 right: auto;
                 width: 4.6rem;
@@ -197,6 +197,7 @@
                 margin-left: 5.25rem !important;
                 margin-right: 0 !important;
                 padding: 1rem 0.5rem 2rem;
+                padding-top: 3rem !important;
                 overflow: visible !important;
                 flex: none;
             }
@@ -251,11 +252,11 @@ Por Adriele Almeida • Estrategista Digital.">
 
     <!-- Controles fixos -->
     <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
-        <div class="max-w-7xl mx-auto h-14 px-4 sm:px-6 lg:px-8 flex flex-col justify-center" style="background-color: #4F46E5;">
-            <h1 class="text-xl sm:text-lg font-bold leading-tight text-white">Diagramador <span style="color: #E12AFF;">Inteligente</span></h1>
-            <p class="mt-1 text-sm sm:text-xs leading-tight text-white">por Adriele Almeida • Estrategista Digital</p>
+        <div class="max-w-7xl mx-auto h-20 px-4 sm:px-6 lg:px-8 flex flex-col justify-center" style="background-color: #4F46E5;">
+            <h1 class="text-[1.75rem] sm:text-[1.625rem] font-bold leading-tight text-white">Diagramador <span style="color: #E12AFF;">Inteligente</span></h1>
+            <p class="mt-1 text-base sm:text-[0.9375rem] leading-tight text-white">por Adriele Almeida • Estrategista Digital</p>
         </div>
-        <div id="formatToolbar" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 grid grid-cols-4 lg:grid-cols-12 items-center gap-1.5 sm:gap-2">
+        <div id="formatToolbar" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 grid grid-cols-4 lg:grid-cols-12 items-center gap-1.5 sm:gap-2">
             <button type="button" data-format="clean_markdown" onclick="applyFormat('clean_markdown')" aria-label="Limpar Markdown" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <span class="format-icon text-lg sm:text-xl font-bold">[ # ]</span>
                 <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar Markdown</span>
