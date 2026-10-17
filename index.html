@@ -110,8 +110,9 @@
             box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
         }
     
-        /* No celular, a barra fica à esquerda e a página mantém a rolagem vertical. */
-        @media (max-width: 767px) {
+        /* Celular e computador usam a mesma disposição: barra de botões à esquerda e blocos empilhados.
+           (No computador, o bloco abaixo só adapta as medidas à largura da página.) */
+        @media all {
             /* Só a página rola (sem rolagem dentro de rolagem), o que evita o scroll travado no celular. */
             html,
             body {
@@ -131,7 +132,7 @@
 
             #formatToolbar {
                 position: absolute;
-                top: calc(3rem - 0.2rem); /* alinha o 1º botão ao topo dos painéis (3rem de espaço no topo) */
+                top: calc(2rem - 0.2rem); /* alinha o 1º botão ao topo dos painéis (2rem de espaço no topo) */
                 left: calc(-5.25rem + 0.35rem);
                 right: auto;
                 width: 4.6rem;
@@ -197,7 +198,7 @@
                 margin-left: 5.25rem !important;
                 margin-right: 0 !important;
                 padding: 1rem 0.5rem 2rem;
-                padding-top: 3rem !important;
+                padding-top: 2rem !important;
                 overflow: visible !important;
                 flex: none;
             }
@@ -240,6 +241,44 @@
                 touch-action: pan-y;
             }
         }
+        /* Computador: mesma ordem do celular, ocupando a largura da página (até 80rem, centralizado). */
+        @media (min-width: 768px) {
+            header { background-color: #4F46E5 !important; } /* faixa roxa de ponta a ponta, como no celular */
+
+            main {
+                width: 100% !important;
+                max-width: 80rem !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                padding: 2rem 2rem 2rem calc(2rem + 5.75rem) !important;
+            }
+
+            #formatToolbar {
+                left: calc(2rem - 0.2rem);
+                width: 5rem;
+            }
+
+            #formatToolbar > button {
+                height: 4.25rem;
+            }
+
+            #formatToolbar .format-label {
+                font-size: 10px;
+            }
+
+            main > div {
+                flex-direction: column !important;
+                gap: 1.5rem;
+            }
+
+            main section > div:first-child h2 {
+                font-size: 1rem;
+            }
+
+            main section > div:first-child .btn-label {
+                display: inline;
+            }
+        }
     </style>
     <meta property="og:title" content="Diagramador Inteligente">
     <meta property="og:description" content="Diagramação instantânea de textos.
@@ -253,10 +292,10 @@ Por Adriele Almeida • Estrategista Digital.">
     <!-- Controles fixos -->
     <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
         <div class="max-w-7xl mx-auto h-20 px-4 sm:px-6 lg:px-8 flex flex-col justify-center" style="background-color: #4F46E5;">
-            <h1 class="text-[1.75rem] sm:text-[1.625rem] font-bold leading-tight text-white">Diagramador <span style="color: #E12AFF;">Inteligente</span></h1>
-            <p class="mt-1 text-base sm:text-[0.9375rem] leading-tight text-white">por Adriele Almeida • Estrategista Digital</p>
+            <h1 class="text-[1.625rem] sm:text-[1.5rem] font-bold leading-tight text-white">Diagramador <span style="color: #E12AFF;">Inteligente</span></h1>
+            <p class="mt-1 text-[0.9375rem] sm:text-[0.875rem] leading-tight text-white">por Adriele Almeida • Estrategista Digital</p>
         </div>
-        <div id="formatToolbar" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 grid grid-cols-4 lg:grid-cols-12 items-center gap-1.5 sm:gap-2">
+        <div id="formatToolbar" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-2 grid grid-cols-4 lg:grid-cols-12 items-center gap-1.5 sm:gap-2">
             <button type="button" data-format="clean_markdown" onclick="applyFormat('clean_markdown')" aria-label="Limpar Markdown" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <span class="format-icon text-lg sm:text-xl font-bold">[ # ]</span>
                 <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar Markdown</span>
@@ -467,24 +506,17 @@ Por Adriele Almeida • Estrategista Digital.">
         const mainEl = document.querySelector('main');
         const mobileQuery = window.matchMedia('(max-width: 767px)');
         function placeToolbar() {
-            if (mobileQuery.matches) {
-                if (formatToolbar.parentElement !== mainEl) mainEl.prepend(formatToolbar);
-            } else if (formatToolbar.parentElement !== toolbarHeader) {
-                toolbarHeader.appendChild(formatToolbar);
-            }
+            // Celular e computador: a barra de botões fica sempre ao lado dos blocos, dentro da área principal
+            if (formatToolbar.parentElement !== mainEl) mainEl.prepend(formatToolbar);
         }
         placeToolbar();
 
         // No celular: alinha a altura dos blocos de texto com a coluna de botões
         function syncLayout() {
             const holder = document.querySelector('main section').parentElement;
-            if (mobileQuery.matches) {
-                const first = formatToolbar.firstElementChild.getBoundingClientRect();
-                const last = formatToolbar.lastElementChild.getBoundingClientRect();
-                holder.style.setProperty('--toolbar-h', Math.round(last.bottom - first.top) + 'px');
-            } else {
-                holder.style.removeProperty('--toolbar-h');
-            }
+            const first = formatToolbar.firstElementChild.getBoundingClientRect();
+            const last = formatToolbar.lastElementChild.getBoundingClientRect();
+            holder.style.setProperty('--toolbar-h', Math.round(last.bottom - first.top) + 'px');
         }
         syncLayout();
         window.addEventListener('resize', syncLayout);
