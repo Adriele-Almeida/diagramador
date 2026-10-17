@@ -675,13 +675,13 @@ Por Adriele Almeida • Estrategista Digital.">
             return text.replace(/—/g, '-');
         }
         /*
-         * Isolador de URLs: devolve só as URLs digitadas no texto, uma por linha.
+         * Isolador de URLs: devolve só as URLs digitadas no texto, uma por linha, com uma linha em branco entre elas.
          * A URL vai do http(s):// até o próximo espaço, aspas, crase ou < >.
          * Pontuação de fim de frase colada no final é deixada de fora.
          */
         function isolateUrls(text) {
             const found = text.match(/https?:\/\/[^\s"'`<>]+/gi) || [];
-            return found.map(trimUrlEnd).filter(Boolean).join('\n');
+            return found.map(trimUrlEnd).filter(Boolean).join('\n\n');
         }
 
         function trimUrlEnd(url) {
