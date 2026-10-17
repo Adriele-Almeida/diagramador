@@ -360,7 +360,6 @@ Por Adriele Almeida • Estrategista Digital.">
                         <line x1="14" y1="10" x2="21" y2="3"></line>
                         <line x1="3" y1="21" x2="10" y2="14"></line>
                     </svg>
-                    <p class="text-slate-400 text-sm font-medium text-center max-w-[250px]">Cole o texto acima e escolha uma função <span id="emptyStateWhere">no topo</span>.</p>
                 </div>
             </section>
 
@@ -482,7 +481,7 @@ Por Adriele Almeida • Estrategista Digital.">
         }
         placeToolbar();
 
-        // No celular: alinha a altura dos blocos de texto com a coluna de botões e ajusta a instrução ("ao lado" / "no topo")
+        // No celular: alinha a altura dos blocos de texto com a coluna de botões
         function syncLayout() {
             const holder = document.querySelector('main section').parentElement;
             if (mobileQuery.matches) {
@@ -492,7 +491,6 @@ Por Adriele Almeida • Estrategista Digital.">
             } else {
                 holder.style.removeProperty('--toolbar-h');
             }
-            document.getElementById('emptyStateWhere').textContent = mobileQuery.matches ? 'ao lado' : 'no topo';
         }
         syncLayout();
         window.addEventListener('resize', syncLayout);
