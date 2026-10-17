@@ -140,6 +140,10 @@
                 font-size: 1.3rem;
             }
 
+            #formatToolbar > #backButton {
+                height: 52px;
+            }
+
             #formatToolbar .format-icon svg {
                 width: 24px;
                 height: 24px;
@@ -213,7 +217,7 @@ Por Adriele Almeida • Estrategista Digital.">
             <h1 class="text-xl sm:text-lg font-bold leading-tight text-white">Diagramador <span style="color: #E12AFF;">Inteligente</span></h1>
             <p class="mt-1 text-sm sm:text-xs leading-tight text-white">por Adriele Almeida • Estrategista Digital</p>
         </div>
-        <div id="formatToolbar" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 grid grid-cols-4 lg:grid-cols-10 items-center gap-1.5 sm:gap-2">
+        <div id="formatToolbar" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 grid grid-cols-4 lg:grid-cols-11 items-center gap-1.5 sm:gap-2">
             <button type="button" data-format="clean_markdown" onclick="applyFormat('clean_markdown')" aria-label="Limpar Markdown" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <span class="format-icon text-lg sm:text-xl font-bold">[ # ]</span>
                 <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar Markdown</span>
@@ -258,6 +262,9 @@ Por Adriele Almeida • Estrategista Digital.">
                     </svg>
                 </span>
                 <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar</span>
+            </button>
+            <button id="backButton" type="button" onclick="history.back()" aria-label="Voltar" title="Voltar" style="touch-action: manipulation; background-color: #4F46E5;" class="group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex items-center justify-center rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"></path><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"></path></svg>
             </button>
         </div>
     </header>
