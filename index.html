@@ -92,12 +92,15 @@
     
         /* No celular, a barra fica à esquerda e a página mantém a rolagem vertical. */
         @media (max-width: 767px) {
+            /* Só a página rola (sem rolagem dentro de rolagem), o que evita o scroll travado no celular. */
             html,
             body {
                 height: auto !important;
                 min-height: 100%;
-                overflow-x: hidden;
-                overflow-y: auto !important;
+                overflow: visible !important;
+            }
+            body {
+                overflow-x: clip !important;
             }
 
             body {
