@@ -6,6 +6,10 @@
     <title>Diagramador</title>
     <!-- Importando Tailwind CSS para estilização moderna e responsiva -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Mesmo layout do celular em qualquer tela: desliga as variações de tela grande (sm/md/lg/xl).
+        tailwind.config = { theme: { screens: { sm: '100000px', md: '100000px', lg: '100000px', xl: '100000px', '2xl': '100000px' } } };
+    </script>
     <!-- Importando fonte Inter do Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -13,6 +17,15 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6; /* cinza claro */
+        }
+        /* No computador, a página fica numa coluna da largura de um celular, centralizada. */
+        body {
+            max-width: 480px;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+        html {
+            background-color: #e5e7eb;
         }
         
         /* Estilização da barra de rolagem para as áreas de texto */
@@ -103,7 +116,8 @@
         }
     
         /* No celular, a barra fica à esquerda e a página mantém a rolagem vertical. */
-        @media (max-width: 767px) {
+        /* Layout do celular aplicado em todas as larguras de tela. */
+        @media all {
             /* Só a página rola (sem rolagem dentro de rolagem), o que evita o scroll travado no celular. */
             html,
             body {
@@ -471,7 +485,7 @@ Por Adriele Almeida • Estrategista Digital.">
         const formatToolbar = document.getElementById('formatToolbar');
         const toolbarHeader = formatToolbar.parentElement;
         const mainEl = document.querySelector('main');
-        const mobileQuery = window.matchMedia('(max-width: 767px)');
+        const mobileQuery = window.matchMedia('all'); // layout do celular em todas as telas
         function placeToolbar() {
             if (mobileQuery.matches) {
                 if (formatToolbar.parentElement !== mainEl) mainEl.prepend(formatToolbar);
