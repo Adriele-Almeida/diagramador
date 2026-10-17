@@ -84,104 +84,7 @@
             box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
         }
     
-        /* No celular, mantém os controles ao lado e as áreas de texto na tela. */
-        @media (max-width: 767px) {
-            html,
-            body {
-                height: 100%;
-                overflow: hidden;
-            }
-
-            body {
-                height: 100dvh;
-                min-height: 0;
-            }
-
-            header {
-                flex: 0 0 3.5rem;
-            }
-
-            header > div:first-child {
-                height: 3.5rem;
-                min-height: 3.5rem;
-            }
-
-            #formatToolbar {
-                position: fixed;
-                top: 3.5rem;
-                right: 0;
-                bottom: env(safe-area-inset-bottom, 0px);
-                z-index: 30;
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
-                gap: .375rem;
-                width: 4.25rem;
-                max-height: calc(100dvh - 3.5rem);
-                margin: 0;
-                padding: .375rem .25rem;
-                overflow-x: hidden;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                box-sizing: border-box;
-                background: #ffffff;
-                border-left: 1px solid #e2e8f0;
-                box-shadow: 0 2px 8px rgb(15 23 42 / .12);
-            }
-
-            #formatToolbar [data-format] {
-                flex: 0 0 3.75rem;
-                width: 100%;
-                min-width: 0;
-                height: 3.75rem;
-                padding: .25rem .125rem;
-            }
-
-            #formatToolbar #multiSelectButton {
-                flex: 0 0 3.75rem;
-                width: 100%;
-                min-width: 0;
-                height: 3.75rem;
-            }
-
-            main {
-                flex: 1 1 auto;
-                width: auto;
-                max-width: none;
-                min-height: 0;
-                margin: 0 4.25rem 0 0;
-                padding: .5rem;
-                overflow: hidden;
-            }
-
-            main > div {
-                height: 100%;
-                min-height: 0;
-                gap: .5rem;
-            }
-
-            main section {
-                flex: 1 1 0;
-                min-width: 0;
-                min-height: 0;
-            }
-
-            main section > div:first-child {
-                flex: 0 0 auto;
-                padding: .5rem .625rem;
-            }
-
-            main section > textarea {
-                flex: 1 1 auto;
-                width: 100%;
-                height: 0;
-                min-height: 0 !important;
-                padding: .625rem;
-                overflow-y: auto;
-                overscroll-behavior: contain;
-            }
-        }
-            /* No celular, a barra fica à esquerda e a página mantém a rolagem vertical. */
+        /* No celular, a barra fica à esquerda e a página mantém a rolagem vertical. */
         @media (max-width: 767px) {
             html,
             body {
@@ -239,8 +142,8 @@
                 max-width: none;
                 height: auto !important;
                 min-height: 0;
-                margin-left: 4.25rem;
-                margin-right: 0;
+                margin-left: 4.25rem !important;
+                margin-right: 0 !important;
                 padding: 1rem 0.5rem 2rem;
                 overflow: visible !important;
                 flex: none;
@@ -584,7 +487,7 @@ Por Adriele Almeida • Estrategista Digital.">
                     && !/[ \t\r\n]/.test(before)
                     && !/[\s,.;:!?%)\]}»”’]/u.test(after);
 
-                return hasTextOnBothSides ? ' ' : '';
+                return hasTextOnBothSides && /[ \t]/.test(match) ? ' ' : '';
             });
         }
 
