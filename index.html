@@ -189,8 +189,13 @@
                 gap: 1rem;
             }
 
+            /* Blocos de texto ocupam a mesma altura da coluna de botões (do primeiro ao último). */
+            main > div {
+                min-height: var(--toolbar-h, auto) !important;
+            }
+
             main > div > section {
-                flex: none;
+                flex: 1 1 0;
                 min-width: 0;
                 min-height: min(24rem, 60vh);
             }
@@ -338,14 +343,14 @@ Por Adriele Almeida • Estrategista Digital.">
                     style="min-height: 300px;"></textarea>
                     
                 <!-- Estado vazio / Instrução overlay -->
-                <div id="emptyState" class="absolute inset-0 top-12 flex flex-col items-center justify-center bg-white/90 pointer-events-none transition-opacity duration-300">
+                <div id="emptyState" class="absolute inset-0 top-12 flex flex-col items-center justify-center bg-white pointer-events-none transition-opacity duration-300">
                     <svg class="text-slate-300 mb-3" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="4 14 10 14 10 20"></polyline>
                         <polyline points="20 10 14 10 14 4"></polyline>
                         <line x1="14" y1="10" x2="21" y2="3"></line>
                         <line x1="3" y1="21" x2="10" y2="14"></line>
                     </svg>
-                    <p class="text-slate-400 text-sm font-medium text-center max-w-[250px]">Cole o texto acima e escolha uma função no topo.</p>
+                    <p class="text-slate-400 text-sm font-medium text-center max-w-[250px]">Cole o texto acima e escolha uma função <span id="emptyStateWhere">no topo</span>.</p>
                 </div>
             </section>
 
@@ -469,6 +474,22 @@ Por Adriele Almeida • Estrategista Digital.">
             }
         }
         placeToolbar();
+
+        // No celular: alinha a altura dos blocos de texto com a coluna de botões e ajusta a instrução ("ao lado" / "no topo")
+        function syncLayout() {
+            const holder = document.querySelector('main section').parentElement;
+            if (mobileQuery.matches) {
+                const first = formatToolbar.firstElementChild.getBoundingClientRect();
+                const last = formatToolbar.lastElementChild.getBoundingClientRect();
+                holder.style.setProperty('--toolbar-h', Math.round(last.bottom - first.top) + 'px');
+            } else {
+                holder.style.removeProperty('--toolbar-h');
+            }
+            document.getElementById('emptyStateWhere').textContent = mobileQuery.matches ? 'ao lado' : 'no topo';
+        }
+        syncLayout();
+        window.addEventListener('resize', syncLayout);
+        window.addEventListener('load', syncLayout);
         if (mobileQuery.addEventListener) {
             mobileQuery.addEventListener('change', placeToolbar);
         } else {
