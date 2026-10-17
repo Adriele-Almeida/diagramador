@@ -707,7 +707,7 @@ Por Adriele Almeida • Estrategista Digital.">
          */
         function isolateUrls(text) {
             const found = text.match(/https?:\/\/[^\s"'`<>]+/gi) || [];
-            return found.map(trimUrlEnd).filter(Boolean).join('\n');
+            return found.map(trimUrlEnd).filter(Boolean).join('\n\n');
         }
 
         function trimUrlEnd(url) {
