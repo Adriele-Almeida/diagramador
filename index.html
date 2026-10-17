@@ -85,14 +85,22 @@
         /* Voltar: sempre apagado (cinza), nunca marcado; borda tracejada e fundo branco para diferenciar do Limpar. */
         .back-control,
         .back-control:hover,
-        .back-control:focus,
-        .back-control:active {
+        .back-control:focus {
             border: 1px dashed #cbd5e1;
             background-color: #ffffff;
             color: #94a3b8;
             box-shadow: none;
             filter: none;
             -webkit-tap-highlight-color: transparent;
+            transition: none;
+        }
+        /* Acende roxo só enquanto o dedo/mouse está pressionando; apaga na hora ao soltar. */
+        .back-control:active,
+        .back-control.is-pressed {
+            border: 1px solid #4f46e5;
+            background-color: #4f46e5;
+            color: #ffffff;
+            transition: none;
         }
         .multi-select-control.is-active,
         .multi-select-control.is-active:hover {
@@ -419,6 +427,9 @@ Por Adriele Almeida • Estrategista Digital.">
         }
         // O Voltar fica sempre cinza (não acende roxo).
         function updateBackButton() {}
+        ['pointerdown'].forEach((ev) => backButton.addEventListener(ev, () => backButton.classList.add('is-pressed')));
+        ['pointerup', 'pointercancel', 'pointerleave', 'blur'].forEach((ev) => backButton.addEventListener(ev, () => backButton.classList.remove('is-pressed')));
+
         function undoLast() {
             backButton.blur();
             const state = undoStack.pop();
