@@ -336,6 +336,10 @@ Por Adriele Almeida • Estrategista Digital.">
                 <span class="format-icon text-2xl sm:text-3xl font-bold">¶</span>
                 <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Parágrafos</span>
             </button>
+            <button type="button" data-format="join_paragraphs" onclick="applyFormat('join_paragraphs')" aria-label="Texto corrido" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-2xl sm:text-3xl font-bold">≡</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Texto Corrido</span>
+            </button>
             <button id="multiSelectButton" type="button" onclick="toggleMultiSelect()" aria-label="Selecionar mais de uma função" aria-pressed="false" class="multi-select-control w-10 sm:w-12 shrink-0 h-16 flex items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <span class="text-3xl font-light leading-none">+</span>
             </button>
@@ -602,6 +606,8 @@ Por Adriele Almeida • Estrategista Digital.">
                         return isolateUrls(formattedText);
                     case 'split_paragraphs':
                         return splitParagraphs(formattedText);
+                    case 'join_paragraphs':
+                        return joinParagraphs(formattedText);
                     default:
                         return formattedText;
                 }
@@ -728,6 +734,14 @@ Por Adriele Almeida • Estrategista Digital.">
          */
         function splitParagraphs(text) {
             return text.trim().split(/(?<=\.)\s+/).map(part => part.trim()).filter(Boolean).join('\n\n');
+        }
+
+        /*
+         * Texto Corrido: junta todos os parágrafos num texto só,
+         * com um espaço entre eles, sem mexer na pontuação.
+         */
+        function joinParagraphs(text) {
+            return text.trim().replace(/[ \t]*(?:\r?\n[ \t]*)+/g, ' ');
         }
 
         function trimUrlEnd(url) {
