@@ -666,6 +666,12 @@ Por Adriele Almeida • Estrategista Digital.">
             // 3. Remove linhas usadas como separador horizontal em Markdown
             result = result.replace(/^[ \t]*---[ \t]*(?:\r?\n|$)/gm, '');
             
+            // 3b. Remove por completo as linhas de citação que têm só ">" (com ou sem espaços)
+            result = result.replace(/^[ \t]*(?:>[ \t]*)+(?:\r?\n|$)/gm, '');
+
+            // 3c. Remove o ">" do começo das linhas de citação
+            result = result.replace(/^[ \t]*(?:>[ \t]?)+/gm, '');
+
             // 4. Remove os espaços em branco que sobram no início de cada linha após remover os símbolos
             // (ex: "### 1." vira "   1.", e isso arruma para "1.")
             result = result.replace(/^[ \t]+/gm, '');
