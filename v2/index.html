@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>Diagramador V2 | Adriele Almeida</title>
+    <!-- Importando Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Importando fonte Inter do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* cinza claro */
+        }
+        
+        /* Estilização da barra de rolagem para as áreas de texto */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Animação suave para o toast de notificação */
+        .toast-enter {
+            transform: translateY(100%);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .toast-enter-active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Estados visuais dos controles de formatação */
+        .format-control,
+        .multi-select-control {
+            transition: none;
+        }
+        .format-icon {
+            width: 100%;
+            height: 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .format-label {
+            min-height: 0.75rem;
+        }
+        .format-control.is-selected,
+        .format-control.is-selected:hover {
+            border-color: #4f46e5;
+            background-color: #4f46e5;
+            color: #ffffff;
+        }
+        .format-control.is-dimmed,
+        .format-control.is-dimmed:hover {
+            border-color: #e2e8f0;
+            background-color: #f1f5f9;
+            color: #94a3b8;
+        }
+        .multi-select-control {
+            border: 1px solid #e2e8f0;
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            box-shadow: none;
+        }
+        .clear-control {
+            border: 1px solid #e2e8f0;
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            box-shadow: none;
+        }
+        /* Voltar: sempre apagado (cinza), nunca marcado; borda tracejada e fundo branco para diferenciar do Limpar. */
+        .back-control,
+        .back-control:hover,
+        .back-control:focus {
+            border: 1px dashed #cbd5e1;
+            background-color: #ffffff;
+            color: #94a3b8;
+            box-shadow: none;
+            filter: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: none;
+        }
+        /* Acende roxo só enquanto o dedo/mouse está pressionando; apaga na hora ao soltar. */
+        .back-control:active,
+        .back-control.is-pressed {
+            border: 1px solid #4f46e5;
+            background-color: #4f46e5;
+            color: #ffffff;
+            transition: none;
+        }
+        .multi-select-control.is-active,
+        .multi-select-control.is-active:hover {
+            border-color: #4f46e5;
+            background-color: #4f46e5;
+            color: #ffffff;
+            box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+        }
+    
+        /* Celular e computador usam a mesma disposição: barra de botões à esquerda e blocos empilhados.
+           (No computador, o bloco abaixo só adapta as medidas à largura da página.) */
+        @media all {
+            /* Só a página rola (sem rolagem dentro de rolagem), o que evita o scroll travado no celular. */
+            html,
+            body {
+                height: auto !important;
+                min-height: 100%;
+                overflow: visible !important;
+            }
+            body {
+                overflow-x: clip !important;
+            }
+
+            body {
+                display: block;
+            }
+
+            /* Menu lateral integrado ao layout: alinhado ao topo dos painéis e rola com a página. */
+
+            #formatToolbar {
+                position: absolute;
+                top: calc(2rem - 0.2rem); /* alinha o 1º botão ao topo dos painéis (2rem de espaço no topo) */
+                left: calc(-5.25rem + 0.35rem);
+                right: auto;
+                width: 4.6rem;
+                max-width: none;
+                margin: 0;
+                height: auto !important;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.4rem;
+                padding: 0.2rem;
+                background: transparent;
+                z-index: 1;
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            #formatToolbar > button {
+                width: 100%;
+                min-width: 0;
+                height: 4rem;
+                flex: none;
+                padding: 0.2rem;
+            }
+
+            #formatToolbar .format-icon {
+                height: 1.75rem;
+                font-size: 1.3rem;
+            }
+
+            #formatToolbar > #backButton {
+                height: 52px;
+            }
+
+            /* Botão Voltar: sem estado de foco/ativo preso após o toque. */
+            #backButton {
+                -webkit-tap-highlight-color: transparent;
+            }
+            #backButton:focus:not(:focus-visible) {
+                outline: none;
+                box-shadow: none;
+            }
+
+
+            #formatToolbar .format-icon svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            #formatToolbar .format-label {
+                margin-top: 0.25rem;
+                font-size: 9px;
+                line-height: 1.1;
+            }
+
+            main {
+                position: relative;
+                width: calc(100% - 5.25rem) !important;
+                max-width: none !important;
+                height: auto !important;
+                min-height: 0;
+                margin-left: 5.25rem !important;
+                margin-right: 0 !important;
+                padding: 1rem 0.5rem 2rem;
+                padding-top: 2rem !important;
+                overflow: visible !important;
+                flex: none;
+            }
+
+            main > div {
+                height: auto !important;
+                min-height: 0;
+                gap: 1rem;
+            }
+
+            /* Blocos de texto ocupam a mesma altura da coluna de botões (do primeiro ao último). */
+            main > div {
+                min-height: var(--toolbar-h, auto) !important;
+            }
+
+            main > div > section {
+                flex: 1 1 0;
+                min-width: 0;
+                min-height: min(24rem, 60vh);
+            }
+
+            main section > div:first-child h2 {
+                font-size: .875rem;
+            }
+
+            main section > div:first-child .btn-label {
+                display: none;
+            }
+
+            main section > div:first-child button svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            main section > textarea {
+                height: auto;
+                min-height: 18rem !important;
+                overflow-y: auto;
+                overscroll-behavior: auto;
+                touch-action: pan-y;
+            }
+        }
+        /* Computador: mesma ordem do celular, ocupando a largura da página (até 80rem, centralizado). */
+        @media (min-width: 768px) {
+            header { background-color: #4F46E5 !important; } /* faixa roxa de ponta a ponta, como no celular */
+
+            main {
+                width: 100% !important;
+                max-width: 80rem !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                padding: 2rem 2rem 2rem calc(2rem + 5.75rem) !important;
+            }
+
+            #formatToolbar {
+                left: calc(2rem - 0.2rem);
+                width: 5rem;
+            }
+
+            #formatToolbar > button {
+                height: 4.25rem;
+            }
+
+            #formatToolbar .format-label {
+                font-size: 10px;
+            }
+
+            main > div {
+                flex-direction: column !important;
+                gap: 1.5rem;
+            }
+
+            main section > div:first-child h2 {
+                font-size: 1rem;
+            }
+
+            main section > div:first-child .btn-label {
+                display: inline;
+            }
+        }
+    
+/* DIAGRAMADOR V2 | ADRIELE ALMEIDA - tema exclusivo, sem alterações na V1 */
+:root {
+  color-scheme:dark;
+  --v2-bg:#050505;
+  --v2-green:#C2E300;
+  --v2-pane:#171717;
+  --v2-line:#303030;
+  --v2-text:#FFFFFF;
+  --v2-muted:#B9B9B9;
+}
+html,body {height:auto!important;min-height:100%!important;overflow-x:clip!important}
+body{
+  display:block!important;
+  margin:0!important;
+  background:var(--v2-bg)!important;
+  color:var(--v2-text)!important;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15px;
+  -webkit-font-smoothing:antialiased;
+}
+header{
+  position:relative!important;
+  top:auto!important;
+  z-index:3!important;
+  background:var(--v2-bg)!important;
+  border:0!important;
+  border-bottom:1px solid #272727!important;
+  box-shadow:none!important;
+}
+header>div:first-child {
+  background:#050505!important;
+  max-width:1250px!important;
+  height:auto!important;
+  min-height:104px!important;
+  padding:29px 22px 22px!important;
+  justify-content:center!important;
+}
+header h1 {
+  color:#FFFFFF!important;
+  font-weight:850!important;
+  letter-spacing:-.055em;
+  line-height:1.13!important;
+  font-size:clamp(29px,4.3vw,41px)!important;
+}
+header h1 span {color:var(--v2-green)!important}
+header p {
+  color:#A6A6A6!important;
+  margin-top:7px!important;
+  font-size:13px!important;
+  font-weight:500;
+  letter-spacing:.02em;
+}
+main {
+  position:relative!important;
+  display:flex!important;
+  flex-direction:column!important;
+  width:100%!important;
+  max-width:1250px!important;
+  margin:0 auto!important;
+  padding:24px 22px 60px!important;
+  gap:20px;
+  min-height:0!important;
+  height:auto!important;
+  overflow:visible!important;
+}
+#formatToolbar {
+  position:relative!important;
+  inset:auto!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:100%!important;
+  max-width:none!important;
+  height:auto!important;
+  display:grid!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  justify-content:stretch!important;
+  gap:10px!important;
+  padding:16px!important;
+  margin:0!important;
+  background:#101010!important;
+  border:1px solid #292929!important;
+  border-radius:20px!important;
+  box-shadow:0 8px 30px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.045)!important;
+  z-index:1!important;
+}
+#formatToolbar:before {
+  content:"FERRAMENTAS DE TEXTO";
+  grid-column:1/-1;
+  display:block;
+  padding:0 2px 3px;
+  color:var(--v2-green);
+  letter-spacing:.16em;
+  font-size:10px;
+  font-weight:800;
+}
+#formatToolbar>button,
+#formatToolbar>button.format-control,
+#formatToolbar>button.multi-select-control,
+#formatToolbar>button.clear-control,
+#formatToolbar>button.back-control {
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:5px!important;
+  padding:9px 6px!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:76px!important;
+  height:76px!important;
+  max-height:none!important;
+  flex:initial!important;
+  border:1px solid #353535!important;
+  border-radius:13px!important;
+  background:linear-gradient(168deg,#242424,#181818)!important;
+  color:#F3F3F3!important;
+  box-shadow:0 4px 0 #070707,inset 0 1px 0 rgba(255,255,255,.1)!important;
+  text-shadow:none!important;
+  transform:none;
+  transition:border-color .12s,background .12s,color .12s,transform .12s!important;
+  -webkit-tap-highlight-color:transparent;
+}
+#formatToolbar>button:hover {
+  border-color:#818d43!important;
+  background:#282c20!important;
+}
+#formatToolbar>button:active {
+  transform:translateY(2px)!important;
+  box-shadow:0 1px 0 #070707!important;
+}
+#formatToolbar>button.is-selected,
+#formatToolbar>button.is-selected:hover,
+#formatToolbar>button#multiSelectButton.is-active,
+#formatToolbar>button#multiSelectButton.is-active:hover {
+  background:var(--v2-green)!important;
+  border-color:#e1fc47!important;
+  color:#091000!important;
+  box-shadow:0 3px 0 #516000,inset 0 1px 0 #f3ff9b!important;
+}
+#formatToolbar>button.is-dimmed {
+  background:#141414!important;
+  border-color:#2b2b2b!important;
+  color:#878787!important;
+}
+#formatToolbar>button:focus-visible {
+  outline:2px solid var(--v2-green)!important;
+  outline-offset:3px!important;
+}
+#formatToolbar .format-icon {
+  flex:0 0 auto;
+  width:100%!important;
+  min-height:27px!important;
+  height:27px!important;
+  margin:0!important;
+  color:inherit!important;
+  font-weight:750!important;
+  line-height:1!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+}
+#formatToolbar .format-icon svg {
+  display:block;
+  width:22px!important;
+  height:22px!important;
+}
+#formatToolbar .format-label {
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:24px!important;
+  padding:0 2px!important;
+  margin:0!important;
+  color:inherit!important;
+  font-size:10px!important;
+  font-weight:700!important;
+  line-height:1.2!important;
+  letter-spacing:.005em;
+  text-align:center!important;
+  overflow-wrap:anywhere;
+}
+#formatToolbar #multiSelectButton>span {
+  color:inherit!important;
+  font-weight:400!important;
+  font-size:27px!important;
+  line-height:1!important;
+}
+#formatToolbar #multiSelectButton:after{
+  content:"Múltiplos";
+  color:inherit;
+  font-size:10px;
+  font-weight:700;
+}
+#formatToolbar #backButton:after {
+  content:"Desfazer";
+  color:inherit;
+  font-size:10px;
+  font-weight:700;
+}
+#formatToolbar #backButton svg {color:inherit!important}
+#formatToolbar #clearButton:not(:hover) {
+  border-color:#3b3b3b!important;
+}
+main>div {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:20px!important;
+  align-items:stretch!important;
+  height:auto!important;
+  min-height:0!important;
+  --toolbar-h:auto!important;
+}
+main>div>section {
+  display:flex!important;
+  flex-direction:column!important;
+  flex:initial!important;
+  min-width:0!important;
+  min-height:445px!important;
+  height:auto!important;
+  border:1px solid var(--v2-line)!important;
+  border-radius:18px!important;
+  background:var(--v2-pane)!important;
+  box-shadow:0 10px 35px #0004,inset 0 1px 0 #ffffff08!important;
+  overflow:hidden!important;
+}
+main>div>section>div:first-child {
+  min-height:64px;
+  padding:16px 18px!important;
+  background:#202020!important;
+  border-bottom:1px solid #323232!important;
+  color:#FFFFFF!important;
+}
+main>div>section>div:first-child h2 {
+  color:var(--v2-text)!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  letter-spacing:.015em;
+}
+main>div>section>div:first-child button {
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  min-height:38px;
+  padding:9px 13px!important;
+  border:1px solid #3e4820!important;
+  border-radius:10px!important;
+  background:#2b3219!important;
+  color:#e1ff73!important;
+  box-shadow:inset 0 1px 0 #ffffff0a!important;
+  font-size:12px!important;
+  font-weight:750!important;
+}
+main>div>section>div:first-child button:hover{
+  background:#3b4820!important;
+  border-color:#b0cb24!important;
+}
+main>div>section>div:first-child .btn-label {
+  display:inline!important;
+  font-size:12px!important;
+}
+main section textarea,
+main section>textarea,
+#inputText,#outputText {
+  width:100%!important;
+  display:block!important;
+  min-height:380px!important;
+  height:380px!important;
+  flex:1 1 auto!important;
+  padding:22px!important;
+  background:#171717!important;
+  color:#F6F6F6!important;
+  caret-color:var(--v2-green)!important;
+  font-size:15px!important;
+  line-height:1.75!important;
+  letter-spacing:.005em;
+  overflow-y:auto!important;
+  resize:vertical!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:none!important;
+  -webkit-text-fill-color:#F6F6F6;
+}
+#inputText::placeholder,#outputText::placeholder {
+  color:#828282;
+  -webkit-text-fill-color:#828282;
+  opacity:1;
+}
+#inputText:focus,#outputText:focus {
+  box-shadow:inset 0 0 0 1px #748c00!important;
+}
+textarea::-webkit-scrollbar{width:10px}
+textarea::-webkit-scrollbar-track{background:#101010}
+textarea::-webkit-scrollbar-thumb{background:#494949;border-radius:12px}
+#toast {
+  background:#252c15!important;
+  border:1px solid #839d16!important;
+  color:#E7FBA6!important;
+  box-shadow:0 10px 30px #0008!important;
+  max-width:calc(100vw - 32px);
+  right:16px!important;
+  bottom:16px!important;
+}
+@media(max-width:900px) {
+  main>div{grid-template-columns:1fr!important;gap:16px!important}
+  main>div>section{min-height:325px!important}
+  main section textarea,#inputText,#outputText{min-height:260px!important;height:295px!important}
+  #formatToolbar{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+}
+@media(max-width:560px){
+  header>div:first-child{min-height:88px!important;padding:20px 16px!important}
+  header h1{font-size:30px!important}
+  header p{font-size:12px!important}
+  main{padding:14px 12px 40px!important;gap:14px!important}
+  #formatToolbar{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:8px!important;padding:12px 10px!important;
+    border-radius:16px!important;
+  }
+  #formatToolbar>button,
+  #formatToolbar>button.format-control,
+  #formatToolbar>button.multi-select-control,
+  #formatToolbar>button.clear-control,
+  #formatToolbar>button.back-control{
+    min-height:73px!important;height:73px!important;
+    padding:7px 4px!important;border-radius:11px!important;
+  }
+  #formatToolbar .format-label{font-size:9.5px!important}
+  main>div>section{border-radius:14px!important;min-height:290px!important}
+  main>div>section>div:first-child{min-height:57px;padding:12px 13px!important}
+  main>div>section>div:first-child h2{font-size:13px!important}
+  main>div>section>div:first-child button{min-height:38px!important;padding:8px!important}
+  main section textarea,#inputText,#outputText{min-height:235px!important;height:270px!important;padding:15px!important;font-size:15px!important}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+    <meta property="og:title" content="Diagramador V2 - Adriele Almeida">
+    <meta property="og:description" content="Diagramação instantânea de textos.
+Por Adriele Almeida • Estrategista Digital.">
+    <meta property="og:image" content="../miniatura.png">
+    <link rel="icon" type="image/png" href="../icone.png">
+    <link rel="apple-touch-icon" href="icone.png">
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <!-- Controles fixos -->
+    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto h-20 px-4 sm:px-6 lg:px-8 flex flex-col justify-center" style="background-color: #4F46E5;">
+            <h1 class="text-[1.625rem] sm:text-[1.5rem] font-bold leading-tight text-white">Diagramador <span style="color: #C2E300;">V2</span></h1>
+            <p class="mt-1 text-[0.9375rem] sm:text-[0.875rem] leading-tight text-white">Adriele Almeida  •  Editor de Textos</p>
+        </div>
+        <div id="formatToolbar" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-2 grid grid-cols-4 lg:grid-cols-12 items-center gap-1.5 sm:gap-2">
+            <button type="button" data-format="clean_markdown" onclick="applyFormat('clean_markdown')" aria-label="Limpar Markdown" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-lg sm:text-xl font-bold" style="font-size:19px">[ # ]</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar Markdown</span>
+            </button>
+            <button type="button" data-format="uppercase" onclick="applyFormat('uppercase')" aria-label="Maiúsculo" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-xl sm:text-2xl font-bold" style="font-size:16.5px">ABC</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">MAIÚSCULO</span>
+            </button>
+            <button type="button" data-format="lowercase" onclick="applyFormat('lowercase')" aria-label="Minúsculo" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-xl sm:text-2xl font-bold" style="font-size:18px">abc</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">minúsculo</span>
+            </button>
+            <button type="button" data-format="titlecase" onclick="applyFormat('titlecase')" aria-label="Formato Título" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-lg sm:text-xl font-bold" style="font-size:17px">Ttx</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Formato Título</span>
+            </button>
+            <button type="button" data-format="remove_underscores" onclick="applyFormat('remove_underscores')" aria-label="Remover Underline" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-xl sm:text-2xl font-bold" style="font-size:17.5px">a_b</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Remover Underline</span>
+            </button>
+            <button type="button" data-format="remove_emojis" onclick="applyFormat('remove_emojis')" aria-label="Remover Emojis" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-2xl sm:text-3xl font-bold" style="font-size:31px">☺</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Remover Emojis</span>
+            </button>
+                        <button type="button" data-format="remove_em_dash" onclick="applyFormat('remove_em_dash')" aria-label="Remover travessões" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-xl sm:text-2xl font-bold" style="font-size:21px">—</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Remover</span>
+            </button>
+            <button type="button" data-format="replace_em_dash" onclick="applyFormat('replace_em_dash')" aria-label="Substituir travessão por hífen" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14"></path><path d="M12 7.5v8"></path><path d="M9 12.5l3 3 3-3"></path><path d="M10 21h4"></path></svg></span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Trocar</span>
+            </button>
+            <button type="button" data-format="isolate_urls" onclick="applyFormat('isolate_urls')" aria-label="Isolar URLs" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Isolar URL</span>
+            </button>
+            <button type="button" data-format="split_paragraphs" onclick="applyFormat('split_paragraphs')" aria-label="Separar em parágrafos" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-2xl sm:text-3xl font-bold" style="font-size:23px">¶</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Parágrafos</span>
+            </button>
+            <button type="button" data-format="join_paragraphs" onclick="applyFormat('join_paragraphs')" aria-label="Texto corrido" class="format-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon text-2xl sm:text-3xl font-bold" style="font-size:32px">≡</span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Texto Corrido</span>
+            </button>
+            <button id="multiSelectButton" type="button" onclick="toggleMultiSelect()" aria-label="Selecionar mais de uma função" aria-pressed="false" class="multi-select-control w-10 sm:w-12 shrink-0 h-16 flex items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="text-3xl font-light leading-none">+</span>
+            </button>
+            <button id="clearButton" type="button" onclick="handleClearClick()" aria-label="Limpar texto (toque duplo limpa também as marcações)" title="Limpar texto — toque duplo limpa também as marcações" style="touch-action: manipulation;" class="clear-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex flex-col items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <span class="format-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path>
+                        <path d="M22 21H7"></path>
+                        <path d="m5 11 9 9"></path>
+                    </svg>
+                </span>
+                <span class="format-label mt-1 text-[7px] sm:text-[9px] font-semibold leading-none text-center">Limpar</span>
+            </button>
+            <button id="backButton" type="button" onclick="undoLast()" aria-label="Voltar (desfazer a última alteração)" title="Voltar" style="touch-action: manipulation;" class="back-control group flex-1 basis-0 min-w-0 h-16 px-1 py-2 flex items-center justify-center rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"></path><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Área Principal de Trabalho -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col lg:flex-row gap-6 lg:gap-8 h-full">
+            
+            <!-- Painel Esquerdo: Entrada -->
+            <section class="flex-1 flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-5 py-3 border-b border-slate-200 flex justify-between items-center">
+                    <h2 class="font-semibold text-slate-700">Texto Original</h2>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="pasteFromClipboard()" aria-label="Colar texto" title="Colar texto" class="flex items-center gap-1.5 text-xs font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200 hover:text-indigo-800 transition-colors px-3 py-1.5 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8 3h8"></path>
+                                <path d="M9 3v2h6V3"></path>
+                                <rect x="5" y="5" width="14" height="16" rx="2"></rect>
+                                <path d="M9 11h6"></path>
+                                <path d="M9 15h4"></path>
+                            </svg>
+                            <span class="btn-label">Colar Texto</span>
+                        </button>
+                    </div>
+                </div>
+                <textarea 
+                    id="inputText" 
+                    placeholder="Digite ou cole seu texto..." 
+                    spellcheck="false" 
+                    class="flex-grow w-full p-5 resize-none outline-none focus:ring-0 text-slate-700 bg-transparent"
+                    style="min-height: 300px;"></textarea>
+            </section>
+
+            <!-- Painel Direito: Resultado -->
+            <section class="flex-1 flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative">
+                <div class="bg-slate-50 px-5 py-3 border-b border-slate-200 flex justify-between items-center">
+                    <h2 class="font-semibold text-slate-700">Resultado Diagramado</h2>
+                    
+                    <!-- Botão de Copiar -->
+                    <button onclick="copyToClipboard()" aria-label="Copiar texto" title="Copiar texto" class="flex items-center gap-1.5 text-xs font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200 hover:text-indigo-800 transition-colors px-3 py-1.5 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span class="btn-label">Copiar Texto</span>
+                    </button>
+                </div>
+                
+                <textarea 
+                    id="outputText" 
+                    placeholder="O resultado aparece aqui..." 
+                    spellcheck="false" 
+                    class="flex-grow w-full p-5 resize-none outline-none focus:ring-0 text-slate-800 bg-transparent"
+                    style="min-height: 300px;"></textarea>
+                    
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Toast de Notificação (Invisível por padrão) -->
+    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-full opacity-0 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 z-50 pointer-events-none">
+        <svg class="text-green-400" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span id="toastMessage" class="text-sm font-medium">Texto copiado!</span>
+    </div>
+
+    <script>
+        // Referências aos elementos do DOM
+        const inputEl = document.getElementById('inputText');
+        const outputEl = document.getElementById('outputText');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const multiSelectButton = document.getElementById('multiSelectButton');
+        let multiSelectMode = false;
+        const selectedFormats = new Set();
+
+        // Atualiza a prévia imediatamente ao digitar ou colar texto
+        inputEl.addEventListener('input', updateOutputFromInput);
+
+        function updateOutputFromInput() {
+            const rawText = inputEl.value;
+            outputEl.value = selectedFormats.size > 0
+                ? applyFormats(rawText, Array.from(selectedFormats))
+                : rawText;
+            updateEmptyState();
+        }
+
+        function updateEmptyState() {} // sem ícone de bloco vazio
+
+        // Função para limpar entrada
+        function clearInput() {
+            inputEl.value = '';
+            outputEl.value = '';
+            updateEmptyState();
+        }
+
+        // Borracha: toque simples limpa o texto; toque duplo limpa também as marcações
+        let lastClearClick = 0;
+        function handleClearClick() {
+            const now = Date.now();
+            if (now - lastClearClick >= 300) saveState();
+            clearInput();
+            if (now - lastClearClick < 300) {
+                clearMarkings();
+                lastClearClick = 0;
+            } else {
+                lastClearClick = now;
+            }
+        }
+
+        // Voltar: desfaz a última alteração (texto, funções marcadas e "+").
+        const backButton = document.getElementById('backButton');
+        const undoStack = [];
+        let lastTypingSnapshot = 0;
+        function saveState() {
+            undoStack.push({ text: inputEl.value, formats: [...selectedFormats], multi: multiSelectMode });
+            if (undoStack.length > 50) undoStack.shift();
+            updateBackButton();
+        }
+        // O Voltar fica sempre cinza (não acende roxo).
+        function updateBackButton() {}
+        ['pointerdown'].forEach((ev) => backButton.addEventListener(ev, () => backButton.classList.add('is-pressed')));
+        ['pointerup', 'pointercancel', 'pointerleave', 'blur'].forEach((ev) => backButton.addEventListener(ev, () => backButton.classList.remove('is-pressed')));
+
+        function undoLast() {
+            backButton.blur();
+            const state = undoStack.pop();
+            if (!state) return;
+            inputEl.value = state.text;
+            selectedFormats.clear();
+            state.formats.forEach((f) => selectedFormats.add(f));
+            multiSelectMode = state.multi;
+            multiSelectButton.setAttribute('aria-pressed', String(multiSelectMode));
+            multiSelectButton.classList.toggle('is-active', multiSelectMode);
+            lastTypingSnapshot = 0;
+            updateFormatButtons();
+            updateOutputFromInput();
+            updateBackButton();
+        }
+        inputEl.addEventListener('beforeinput', () => {
+            const now = Date.now();
+            if (now - lastTypingSnapshot > 1000) saveState();
+            lastTypingSnapshot = now;
+        });
+
+        function clearMarkings() {
+            selectedFormats.clear();
+            multiSelectMode = false;
+            multiSelectButton.setAttribute('aria-pressed', 'false');
+            multiSelectButton.classList.remove('is-active');
+            updateFormatButtons();
+            updateOutputFromInput();
+        }
+
+        // No celular, o menu lateral fica dentro da área principal (não fixo); no computador, volta ao cabeçalho
+        const formatToolbar = document.getElementById('formatToolbar');
+        const toolbarHeader = formatToolbar.parentElement;
+        const mainEl = document.querySelector('main');
+        const mobileQuery = window.matchMedia('(max-width: 767px)');
+        function placeToolbar() {
+            // Celular e computador: a barra de botões fica sempre ao lado dos blocos, dentro da área principal
+            if (formatToolbar.parentElement !== mainEl) mainEl.prepend(formatToolbar);
+        }
+        placeToolbar();
+
+        // No celular: alinha a altura dos blocos de texto com a coluna de botões
+        function syncLayout() {
+            const holder = document.querySelector('main section').parentElement;
+            const first = formatToolbar.firstElementChild.getBoundingClientRect();
+            const last = formatToolbar.lastElementChild.getBoundingClientRect();
+            holder.style.setProperty('--toolbar-h', Math.round(last.bottom - first.top) + 'px');
+        }
+        syncLayout();
+        window.addEventListener('resize', syncLayout);
+        window.addEventListener('load', syncLayout);
+        if (mobileQuery.addEventListener) {
+            mobileQuery.addEventListener('change', placeToolbar);
+        } else {
+            mobileQuery.addListener(placeToolbar);
+        }
+
+        /*
+         * Lógica Central: Aplicador de Formato
+         * No modo padrão aplica uma única função; tocar de novo no botão marcado desmarca.
+         * No modo de seleção múltipla aplica as funções marcadas, na ordem de seleção.
+         */
+        function applyFormat(type) {
+            saveState();
+            if (multiSelectMode) {
+                if (selectedFormats.has(type)) {
+                    selectedFormats.delete(type);
+                } else {
+                    selectedFormats.add(type);
+                }
+            } else if (selectedFormats.has(type)) {
+                selectedFormats.clear();
+            } else {
+                selectedFormats.clear();
+                selectedFormats.add(type);
+            }
+
+            updateFormatButtons();
+            updateOutputFromInput();
+        }
+
+        function toggleMultiSelect() {
+            saveState();
+            multiSelectMode = !multiSelectMode;
+
+            if (!multiSelectMode) {
+                selectedFormats.clear();
+            }
+
+            multiSelectButton.setAttribute('aria-pressed', String(multiSelectMode));
+            multiSelectButton.classList.toggle('is-active', multiSelectMode);
+            updateFormatButtons();
+            updateOutputFromInput();
+        }
+
+        function updateFormatButtons() {
+            document.querySelectorAll('[data-format]').forEach((button) => {
+                const isSelected = selectedFormats.has(button.dataset.format);
+                const isDimmed = multiSelectMode && !isSelected;
+                button.classList.toggle('is-selected', isSelected);
+                button.classList.toggle('is-dimmed', isDimmed);
+                button.setAttribute('aria-pressed', String(isSelected));
+            });
+        }
+
+        function applyFormats(text, formats) {
+            return formats.reduce((formattedText, type) => {
+                switch (type) {
+                    case 'uppercase':
+                        return formattedText.toUpperCase();
+                    case 'lowercase':
+                        return formattedText.toLowerCase();
+                    case 'titlecase':
+                        return formatTitleCase(formattedText);
+                    case 'clean_markdown':
+                        return cleanMarkdownCitations(formattedText);
+                    case 'remove_emojis':
+                        return removeEmojis(formattedText);
+                    case 'remove_em_dash':
+                        return removeEmDash(formattedText);
+                    case 'replace_em_dash':
+                        return replaceEmDash(formattedText);
+                    case 'remove_underscores':
+                        return removeUnderscores(formattedText);
+                    case 'isolate_urls':
+                        return isolateUrls(formattedText);
+                    case 'split_paragraphs':
+                        return splitParagraphs(formattedText);
+                    case 'join_paragraphs':
+                        return joinParagraphs(formattedText);
+                    default:
+                        return formattedText;
+                }
+            }, text);
+        }
+
+        /*
+         * Lógica para Formato de Título
+         * Palavras principais recebem inicial maiúscula.
+         * Palavras de ligação (artigos, preposições, conjunções) permanecem minúsculas,
+         * EXCETO se estiverem no início do texto ou após pontuação final (. ! ?).
+         */
+        function formatTitleCase(text) {
+            // Lista abrangente de palavras menores no português (artigos, preposições, conjunções)
+            const exceptions = [
+                "a", "as", "o", "os", "um", "uma", "uns", "umas",
+                "de", "do", "da", "dos", "das", 
+                "em", "no", "na", "nos", "nas", 
+                "por", "pelo", "pela", "pelos", "pelas", 
+                "para", "com", "sem", "sob", "sobre", "ante", "até", "após",
+                "e", "ou", "mas", "que", "se", "como", "nem", "pois",
+                "ao", "aos", "à", "às"
+            ];
+
+            // Expressão regular para encontrar palavras (inclui acentos do Português)
+            // A flag 'g' itera por todas as palavras encontradas
+            return text.replace(/[a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ]+/g, (match, offset, fullString) => {
+                const wordLower = match.toLowerCase();
+
+                // Pega a string que vem ANTES da palavra atual
+                const precedingString = fullString.slice(0, offset);
+                
+                // Verifica se é o início de uma frase:
+                // 1. Se a string anterior estiver vazia (início absoluto do texto)
+                // 2. Se a string anterior terminar com pontuação de fim de frase seguida de espaços/quebras de linha
+                const isSentenceStart = precedingString.trim() === "" || /[\.\!\?\;\:]\s*$/.test(precedingString);
+
+                // Regra: Se é início de frase OU se NÃO está na lista de exceções -> Capitaliza
+                if (isSentenceStart || !exceptions.includes(wordLower)) {
+                    return wordLower.charAt(0).toUpperCase() + wordLower.slice(1);
+                } else {
+                    // É uma palavra de exceção no meio da frase -> Mantém minúscula
+                    return wordLower;
+                }
+            });
+        }
+
+        /*
+         * Lógica para Limpar Markdown e Citações
+         * Remove os caracteres específicos de formatação e os números de referência.
+         */
+        function cleanMarkdownCitations(text) {
+            let result = text;
+            
+            // 1. Remove referências de fontes tipo [1], [1, 2], [2-4] e [x].
+            // A regex aceita números, vírgulas, espaços e hífens dentro dos colchetes.
+            result = result.replace(/\s*\[([\d\s,–-]+|[a-zA-Z])\]/g, '');
+            
+            // 2. Remove os caracteres de markdown especificados (* e #)
+            result = result.replace(/[#*]/g, '');
+
+            // 3. Remove linhas usadas como separador horizontal em Markdown
+            result = result.replace(/^[ \t]*---[ \t]*(?:\r?\n|$)/gm, '');
+            
+            // 3b. Remove por completo as linhas de citação que têm só ">" (com ou sem espaços)
+            result = result.replace(/^[ \t]*(?:>[ \t]*)+(?:\r?\n|$)/gm, '');
+
+            // 3c. Remove o ">" do começo das linhas de citação
+            result = result.replace(/^[ \t]*(?:>[ \t]?)+/gm, '');
+
+            // 4. Remove os espaços em branco que sobram no início de cada linha após remover os símbolos
+            // (ex: "### 1." vira "   1.", e isso arruma para "1.")
+            result = result.replace(/^[ \t]+/gm, '');
+            
+            return result;
+        }
+
+        /*
+         * Remove emojis e ajusta apenas os espaços encostados neles:
+         * mantém um espaço entre palavras e não deixa espaços nas bordas
+         * nem antes de pontuação ou de uma quebra de linha.
+         */
+        function removeEmojis(text) {
+            const emojiPattern = String.raw`(?:[0-9#*]\uFE0F?\u20E3|\p{Regional_Indicator}{1,2}|\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier}|\u200D\p{Extended_Pictographic})*)`;
+            const emojiRunPattern = new RegExp(`[ \\t]*${emojiPattern}(?:[ \\t]*${emojiPattern})*[ \\t]*`, 'gu');
+
+            return text.replace(emojiRunPattern, (match, offset, fullText) => {
+                const before = fullText[offset - 1] || '';
+                const after = fullText[offset + match.length] || '';
+                const hasTextOnBothSides = before && after
+                    && !/[ \t\r\n]/.test(before)
+                    && !/[\s,.;:!?%)\]}»”’]/u.test(after);
+
+                return hasTextOnBothSides && /[ \t]/.test(match) ? ' ' : '';
+            });
+        }
+
+        /*
+         * Remove exclusivamente o caractere travessão (—).
+         */
+        function removeEmDash(text) {
+            return text.replace(/—/g, '');
+        }
+
+        /*
+         * Substitui exclusivamente o travessão (—) pelo hífen (-).
+         */
+        function replaceEmDash(text) {
+            return text.replace(/—/g, '-');
+        }
+        /*
+         * Isolador de URLs: devolve só as URLs digitadas no texto, uma por linha.
+         * A URL vai do http(s):// até o próximo espaço, aspas, crase ou < >.
+         * Pontuação de fim de frase colada no final é deixada de fora.
+         */
+        function isolateUrls(text) {
+            const found = text.match(/https?:\/\/[^\s"'`<>]+/gi) || [];
+            return found.map(trimUrlEnd).filter(Boolean).join('\n\n');
+        }
+
+        /*
+         * Parágrafos: quebra o texto depois de cada ponto final,
+         * deixando uma linha em branco entre um parágrafo e outro.
+         */
+        function splitParagraphs(text) {
+            return text.trim().split(/(?<=\.)\s+/).map(part => part.trim()).filter(Boolean).join('\n\n');
+        }
+
+        /*
+         * Texto Corrido: junta todos os parágrafos num texto só,
+         * com um espaço entre eles, sem mexer na pontuação.
+         */
+        function joinParagraphs(text) {
+            return text.trim().replace(/[ \t]*(?:\r?\n[ \t]*)+/g, ' ');
+        }
+
+        function trimUrlEnd(url) {
+            const pairs = { ')': '(', ']': '[', '}': '{' };
+            let changed = true;
+            while (changed && url.length) {
+                changed = false;
+                const last = url[url.length - 1];
+                if ('.,;:!?*'.includes(last)) {
+                    url = url.slice(0, -1);
+                    changed = true;
+                } else if (pairs[last]) {
+                    const opens = url.split(pairs[last]).length - 1;
+                    const closes = url.split(last).length - 1;
+                    if (closes > opens) {
+                        url = url.slice(0, -1);
+                        changed = true;
+                    }
+                }
+            }
+            return url;
+        }
+
+        /*
+         * Troca cada underline por um espaço, preservando todo o restante do texto.
+         */
+        function removeUnderscores(text) {
+            return text.replace(/_/g, ' ');
+        }
+
+        /*
+         * Lógica de Colagem para Área de Transferência
+         */
+        async function pasteFromClipboard() {
+            try {
+                const pasted = await navigator.clipboard.readText();
+                saveState();
+                inputEl.value = pasted;
+                updateOutputFromInput();
+                showToast("Texto colado com sucesso!");
+            } catch (err) {
+                console.error('Falha ao colar texto: ', err);
+                showToast("Erro ao colar.", true);
+            }
+        }
+
+        /*
+         * Lógica de Cópia para Área de Transferência
+         */
+        async function copyToClipboard() {
+            const textToCopy = outputEl.value;
+            
+            if (!textToCopy) {
+                showToast("Não há texto para copiar.", true);
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                showToast("Texto copiado com sucesso!");
+            } catch (err) {
+                console.error('Falha ao copiar texto: ', err);
+                showToast("Erro ao copiar.", true);
+            }
+        }
+
+        // Função para mostrar o Toast (notificação temporária na tela)
+        let toastTimeout;
+        function showToast(message, isError = false) {
+            toastMessage.textContent = message;
+            
+            // Muda cor dependendo se é erro ou sucesso
+            if(isError) {
+                toast.classList.replace('bg-gray-900', 'bg-red-600');
+            } else {
+                toast.classList.replace('bg-red-600', 'bg-gray-900');
+                toast.classList.replace('bg-gray-900', 'bg-gray-900'); // Garante estado base
+            }
+
+            // Exibe o toast
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+
+            // Limpa o temporizador antigo se clicar rápido
+            clearTimeout(toastTimeout);
+
+            // Esconde após 3 segundos
+            toastTimeout = setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(100%)';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
